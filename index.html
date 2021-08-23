@@ -260,6 +260,149 @@
   
   
 
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/29/iot-protocol-overview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="7ee1n">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="71's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/29/iot-protocol-overview/" class="post-title-link" itemprop="url">iot-protocol-overview</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-29 16:25:58" itemprop="dateCreated datePublished" datetime="2021-07-29T16:25:58+08:00">2021-07-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-08-23 16:29:42" itemprop="dateModified" datetime="2021-08-23T16:29:42+08:00">2021-08-23</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p><a target="_blank" rel="noopener" href="https://paper.seebug.org/1045/">Seebug入门级资料</a> 的note。简单来说攻击面可以分成设备本身、移动端、云端、通信过程四部分。以下是整理的通讯层面的内容，个人感觉重点是 协议的实现和数据格式。</p>
+</blockquote>
+<h2 id="通讯层面-通用协议标准"><a href="#通讯层面-通用协议标准" class="headerlink" title="通讯层面-通用协议标准"></a>通讯层面-通用协议标准</h2><p>以下的这些协议都会涉及到应用层，有一部分还会规定传输层、数链层、物理层的标准。</p>
+<h3 id="CoAP-Constrained-Application-Protocol"><a href="#CoAP-Constrained-Application-Protocol" class="headerlink" title="CoAP (Constrained Application Protocol)"></a>CoAP (Constrained Application Protocol)</h3><p>iot设备的 RAM 和 ROM 一般很小，没有足够的空间支持 TCP 和 HTTP 协议，也就诞生了这个由 UDP 实现的低功耗短连接的协议。主要用于 M2M 的应用场景，也就是能联网的设备，像水表的自动抄表模块、手机的移动通信模块、工业的遥控模块等。（<a target="_blank" rel="noopener" href="https://coap.technology/tools.html">工具</a>）</p>
+<h4 id="报文格式"><a href="#报文格式" class="headerlink" title="报文格式"></a>报文格式</h4><p>可以理解为简化的HTTP（text），分请求和响应报文，但 CoAP 是 binary 格式的。除去token、options、payload，最小的报文长度为 4 字节。各固定字段含义和内容详见 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Constrained_Application_Protocol">wiki</a>。其中Type大小为 2 bit，共四种类型：CON、NON、ACK、RST，前两种可类比为 TCP 和 UDP来理解。</p>
+<p><img src="https://i.loli.net/2021/07/29/7CYLxW9f2PnybED.png"></p>
+<h4 id="URL"><a href="#URL" class="headerlink" title="URL"></a>URL</h4><p>默认端口为 udp 5683（coaps是5684）。</p>
+<h3 id="MQTT-Message-Queuing-Telemetry-Transport"><a href="#MQTT-Message-Queuing-Telemetry-Transport" class="headerlink" title="MQTT (Message Queuing Telemetry Transport)"></a>MQTT (Message Queuing Telemetry Transport)</h3><p>也是轻量级的通讯协议，但它基于的是 TCP/IP 协议。CoAP支持的是 Client 和 Server 间的一对一信息传递，MQTT支持多对多，应用场景更广，如卫星链路通信传感器、智能家居等。</p>
+<h4 id="报文类型和格式"><a href="#报文类型和格式" class="headerlink" title="报文类型和格式"></a>报文类型和格式</h4><p>主要分 Connect、Subscribe、Publish、Disconnect四种类型。客户端可以是发布者或订阅者，服务器端是代理者。下图以订阅过程为例，或者参考 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/MQTT">wiki</a> 上的智能空调温度调节实例，个人觉得那个更好理解。</p>
+<p><img src="https://i.loli.net/2021/07/29/WUKVcBXqdIaiuG9.png"></p>
+<p>报文的最小长度为 2 字节，payload最长为256字节。固定头部和可变长头部包括消息类型、长度等常见字段，详见 <a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/mqtt-intro.html">菜鸟教程</a> 。</p>
+<h3 id="AMQP-Advanced-Message-Queuing-Protocol"><a href="#AMQP-Advanced-Message-Queuing-Protocol" class="headerlink" title="AMQP (Advanced Message Queuing Protocol)"></a>AMQP (Advanced Message Queuing Protocol)</h3><p>跟MQTT一样都是队列协议，都使用异步通信机制。可以将 MQTT 理解为 AMQP 的简化版，它们的实现原理相同，但 MQTT 是专门为计算性能不高的小设备设计的。两者主要区别如下表，详见：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/bclshuai/p/8607517.html">RabbitMQ MQTT协议和AMQP协议</a> 。</p>
+<table>
+<thead>
+<tr>
+<th>AMQP</th>
+<th>MQTT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>底层消息传递协议</td>
+<td>消息通讯机制</td>
+</tr>
+<tr>
+<td>面向缓存</td>
+<td>面向流，内存占用低</td>
+</tr>
+<tr>
+<td>支持长周期消息传递</td>
+<td>短周期，不支持长周期存储和转发</td>
+</tr>
+<tr>
+<td>用SASL和TLS确保安全性</td>
+<td>简单用户名和密码</td>
+</tr>
+<tr>
+<td>Client和Server对等</td>
+<td>Client和Server不对等</td>
+</tr>
+<tr>
+<td>可扩展</td>
+<td>不可扩展</td>
+</tr>
+</tbody></table>
+<h3 id="WebSocket"><a href="#WebSocket" class="headerlink" title="WebSocket"></a>WebSocket</h3><p>算是这么多协议中我最熟悉的一个了，计网必学hh。</p>
+<p>也是基于 TCP 协议，通过 HTTP 的 80 和 443 端口工作，使用HTTP Upgrade 头。<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/WebSocket">wiki</a> 上给出的交握请求数据如下：</p>
+<p><img src="https://i.loli.net/2021/07/29/gXQcUixtWpPMuzN.jpg"></p>
+<p>其中 Upgrade 和 Connection 是固定的。Sec-WebSocket-Key 是 Base64 编码的字串，加上特殊字串计算出 SHA-1 摘要，得到 Sec-WebSocket-Accept。</p>
+<p>编程跟socket编程差不多，参考 <a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2017/05/websocket.html">WebSocket教程</a> 。</p>
+<h3 id="CANbus（Controller-Area-Network）"><a href="#CANbus（Controller-Area-Network）" class="headerlink" title="CANbus（Controller Area Network）"></a>CANbus（Controller Area Network）</h3><p>多主机串行标准，为实时要求而设计，在微控制器之间提供快速通信，取替了成本更高的RAM技术。主要用于实时性要求高的嵌入式系统，如汽车、工业自动化、医疗工程等。更具体的可以看 <a target="_blank" rel="noopener" href="https://copperhilltech.com/a-brief-introduction-to-controller-area-network/">A Brief Introduction to Controller Area Network</a> 。</p>
+<h4 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h4><p>需要高低电平两条电线：CAN_H 和 CAN_L，组成一条双绞线。</p>
+<p>具体看 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8E%A7%E5%88%B6%E5%99%A8%E5%8D%80%E5%9F%9F%E7%B6%B2%E8%B7%AF">wiki</a> ，感觉跟通信原理和计组很像，主要是底层的一些编码跟电路的关系。</p>
+<h3 id="Modbus"><a href="#Modbus" class="headerlink" title="Modbus"></a>Modbus</h3><p>多对多的请求应答协议，用于控制器和设备通信，主要是规定了数据传输的模式、格式，带有检错功能。</p>
+<p><img src="https://i.loli.net/2021/07/29/UlJMchOd6oWTu2X.png"></p>
+<p>校验过程：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/luomingui/archive/2013/06/14/Modbus.html">Modbus通讯协议学习</a> 。</p>
+<h3 id="Profibus"><a href="#Profibus" class="headerlink" title="Profibus"></a>Profibus</h3><p>前面的Modbus是施耐德电气公司发明的。Profibus则是西门子公司发明的，实时性高，用于智能设备、自动化系统间的点对点通信。更详细的物理层上的结构可以看 ：<a target="_blank" rel="noopener" href="https://www.smar.com/en/profibus">What is PROFIBUS? | SMAR Technology Company</a></p>
+<h3 id="DNP3（Distributed-Network-Protocol-3）"><a href="#DNP3（Distributed-Network-Protocol-3）" class="headerlink" title="DNP3（Distributed Network Protocol 3）"></a>DNP3（Distributed Network Protocol 3）</h3><p>分布式网络协议，比 Modbus 更复杂、更高效。为用户数据提供复用、数据分片、错误检查、链路控制、优先级和数链层寻址服务，定义了传输功能，使用大量的 CRC 校验来检错。</p>
+<p>详见：<a target="_blank" rel="noopener" href="https://www.baidu.com/link?url=qyBX843MWBacsfH3OYZJWY1rGTpNQ6y8ky4u5mJZPoEWKJ7kuJz8S8iIxgEvKrs3Ca_S0BiUBnmHZ2fm59kpkmPj209hGWoVVTUdgsQynkm&wd=&eqid=ed625bb10004b3c4000000066102a283"><em>DNP3</em>协议简单介绍及协议识别方法 – 灯塔实验室</a> 。</p>
+<p>通信端口：TCP的20000端口。</p>
+<h3 id="BACNet（Building-Automation-and-Control）"><a href="#BACNet（Building-Automation-and-Control）" class="headerlink" title="BACNet（Building Automation and Control）"></a>BACNet（Building Automation and Control）</h3><p>building 指的是楼宇，该协议主要用于供暖、空调控制、火灾探测系统等。其协议栈参考：<a target="_blank" rel="noopener" href="https://www.baidu.com/link?url=5y4I_zGBeOL0nABYYYxhgqNAYlVEq7vomABrZOIC3XeSg14wp67YQLAoYtl0Ti3grrkhIxSxOigBoz6r1VEBBK&wd=&eqid=e1a7b19b0005878c000000066102a515">认识<em>BACnet</em>协议 - 薄心之心 - 博客园</a>  。</p>
+<h3 id="HL7（Health-Level-7）"><a href="#HL7（Health-Level-7）" class="headerlink" title="HL7（Health Level 7）"></a>HL7（Health Level 7）</h3><p>数据格式看 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Health_Level_7">wiki</a> 的就够了。</p>
+<h3 id="XMPP（Extensible-Messaging-and-Presence-Protocol）"><a href="#XMPP（Extensible-Messaging-and-Presence-Protocol）" class="headerlink" title="XMPP（Extensible Messaging and Presence Protocol）"></a>XMPP（Extensible Messaging and Presence Protocol）</h3><p>基于 XML 类型，为即时消息、在线状态信息而设计，实时性高。</p>
+<p>代码详见： <a target="_blank" rel="noopener" href="https://www.baidu.com/link?url=453myG0wWyxJb9mqQQToft8yQEwiJY833aG0mGl5amYOcWRdd5mqDPx8IS7WUsJd&wd=&eqid=a6818c300003e1ce000000066102a6a6"><em>XMPP</em>详解 - 简书</a> 。</p>
+<h3 id="UPnP（Universal-Plug-and-Play）"><a href="#UPnP（Universal-Plug-and-Play）" class="headerlink" title="UPnP（Universal Plug and Play）"></a>UPnP（Universal Plug and Play）</h3><p>即插即用协议，我一开始不是很理解这个 “插” 字。顾名思义，Plug 🔌，就是插上🔌后联网设备能立即连网，也就是建立功能性网络服务。因此它会使用 HTTP 协议进行设备搜索请求（UDP 1900端口）、数据传输。有的设备还能通过网络访问，实际上是 UPnP 在刚开始查找到设备后，有可能为其增加一个外部 IP 地址，修改路由器的内容，增加新的端口转发映射，使得打印机、相机等设备能通过网络访问。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
 
   
 
@@ -326,9 +469,13 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-count">2</span>
           <span class="site-state-item-name">posts</span>
         </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">tags</span>
       </div>
   </nav>
 </div>
@@ -364,13 +511,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">0k</span>
+    <span title="Symbols count total">3k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">1 mins.</span>
+    <span title="Reading time total">2 mins.</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
