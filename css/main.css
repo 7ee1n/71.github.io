@@ -1681,9 +1681,6 @@ pre code {
 .back-to-top {
   font-size: 12px;
 }
-.back-to-top span {
-  display: none;
-}
 .back-to-top {
   bottom: -100px;
   box-sizing: border-box;
@@ -1696,7 +1693,6 @@ pre code {
   position: fixed;
   z-index: 1300;
   left: 30px;
-  width: 24px;
 }
 @media (max-width: 991px) {
   .back-to-top {
@@ -2569,11 +2565,11 @@ ul.breadcrumb li:last-child {
 }
 @media (min-width: 992px) {
   .sidebar-active {
-    padding-left: 320px;
+    padding-left: 230px;
   }
 }
 .sidebar {
-  left: -320px;
+  left: -230px;
 }
 .sidebar-active .sidebar {
   left: 0;
@@ -2585,7 +2581,7 @@ ul.breadcrumb li:last-child {
   position: fixed;
   top: 0;
   transition: all 0.2s ease-out;
-  width: 320px;
+  width: 230px;
   z-index: 1200;
 }
 .sidebar a {
@@ -2607,7 +2603,7 @@ ul.breadcrumb li:last-child {
   vertical-align: middle;
 }
 .links-of-author a::before {
-  background: #b9ff93;
+  background: #8effe8;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);
