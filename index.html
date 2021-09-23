@@ -200,7 +200,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/09/13/embedded-heap/" class="post-title-link" itemprop="url">uLibc | embedded_heap-0ctf2019final</a>
+          <a href="/2021/09/13/embedded-heap/" class="post-title-link" itemprop="url">uClibc | embedded_heap-0ctf2019final</a>
         </h2>
 
         <div class="post-meta-container">
@@ -210,10 +210,16 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2021-09-13 19:20:47 / Modified: 20:36:27" itemprop="dateCreated datePublished" datetime="2021-09-13T19:20:47+08:00">2021-09-13</time>
+      <time title="Created: 2021-09-13 19:20:47" itemprop="dateCreated datePublished" datetime="2021-09-13T19:20:47+08:00">2021-09-13</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-09-23 20:42:32" itemprop="dateModified" datetime="2021-09-23T20:42:32+08:00">2021-09-23</time>
+      </span>
 
   
     <span class="post-meta-break"></span>
@@ -222,14 +228,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">Symbols count in article: </span>
-      <span>1.6k</span>
+      <span>4.2k</span>
     </span>
     <span class="post-meta-item" title="Reading time">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">Reading time &asymp;</span>
-      <span>1 mins.</span>
+      <span>4 mins.</span>
     </span>
 </div>
 
@@ -240,14 +246,17 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h2 id="1-堆管理机制">1. 堆管理机制</h2>
-<p>相关源码位置：<code>/(your_path)/uClibc-0.9.33.2/libc/stdlib/malloc-standard</code> 。</p>
-<p><strong>malloc_state</strong> 结构体定义如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span> &#123;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* The maximum chunk size to be eligible for fastbin */</span></span><br><span class="line">  <span class="keyword">size_t</span>  max_fast;   <span class="comment">/* low 2 bits used as flags */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Fastbins */</span></span><br><span class="line">  mfastbinptr      fastbins[NFASTBINS];<span class="comment">// struct malloc_chunk*</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Base of the topmost chunk -- not otherwise kept in a bin */</span></span><br><span class="line">  mchunkptr        top;<span class="comment">// struct malloc_chunk*</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* The remainder from the most recent split of a small request */</span></span><br><span class="line">  mchunkptr        last_remainder;<span class="comment">// struct malloc_chunk*</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Normal bins packed as described above */</span></span><br><span class="line">  mchunkptr        bins[NBINS * <span class="number">2</span>];				<span class="comment">// #define NBINS 96</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Bitmap of bins. Trailing zero map handles cases of largest binned size */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span>     binmap[BINMAPSIZE+<span class="number">1</span>];</span><br><span class="line">    <span class="comment">/* 其中 BINMAPSIZE 在 malloc.h 中的定义为：</span></span><br><span class="line"><span class="comment">	    Conservatively use 32 bits per map word, even if on 64bit system </span></span><br><span class="line"><span class="comment">		#define BINMAPSHIFT      5</span></span><br><span class="line"><span class="comment">		#define BITSPERMAP       (1U &lt;&lt; BINMAPSHIFT)</span></span><br><span class="line"><span class="comment">		#define BINMAPSIZE       (NBINS / BITSPERMAP)</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">     </span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Tunable parameters */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span>     trim_threshold;</span><br><span class="line">  <span class="keyword">size_t</span>  top_pad;</span><br><span class="line">  <span class="keyword">size_t</span>  mmap_threshold;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Memory map support */</span></span><br><span class="line">  <span class="keyword">int</span>              n_mmaps;</span><br><span class="line">  <span class="keyword">int</span>              n_mmaps_max;</span><br><span class="line">  <span class="keyword">int</span>              max_n_mmaps;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Cache malloc_getpagesize */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span>     pagesize;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Track properties of MORECORE */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span>     morecore_properties;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Statistics */</span></span><br><span class="line">  <span class="keyword">size_t</span>  mmapped_mem;</span><br><span class="line">  <span class="keyword">size_t</span>  sbrked_mem;</span><br><span class="line">  <span class="keyword">size_t</span>  max_sbrked_mem;</span><br><span class="line">  <span class="keyword">size_t</span>  max_mmapped_mem;</span><br><span class="line">  <span class="keyword">size_t</span>  max_total_mem;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>其中，关于 <strong>malloc_chunk</strong> 的定义，跟 glibc 是一样的：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span> &#123;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">size_t</span>      prev_size;  <span class="comment">/* Size of previous chunk (if free).  */</span></span><br><span class="line">  <span class="keyword">size_t</span>      size;       <span class="comment">/* Size in bytes, including overhead. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd</span>;</span>         <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">mchunkptr</span>;</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">mfastbinptr</span>;</span></span><br></pre></td></tr></table></figure>
-<p>不同的是，uLibc 把 <strong>max_fast</strong> 写进了管理所有堆布局的 <strong>malloc_state</strong> 中。</p>
-
+          <blockquote>
+<p>有点老的题目——19年的 house of prime。算是 MIPS 入门题。环境为 uLibc，是用于嵌入式系统和移动设备的基于 Linux 内核的操作系统（摘自wiki）。说白了就是小型设备都用它，我理解为精简版的 glibc，有一点点变化，但相似度还是蛮高的。以往路由器使用的基本都是 uClibc ，我想这道题也能当作路由器安全入门。en，但是 qemu user调着好像有点问题，先鸽一会会😭😰，实在不行还是用system做吧哎</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/13/embedded-heap/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -485,13 +494,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="Symbols count total">19k</span>
+    <span title="Symbols count total">22k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">18 mins.</span>
+    <span title="Reading time total">20 mins.</span>
   </span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
