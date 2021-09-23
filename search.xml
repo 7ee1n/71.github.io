@@ -50,7 +50,7 @@
 <p>uClibc 的初始发行都是 2000 年的事了。这道题目 embedded_heap 所用的 <strong>0.9.33.2</strong> 版本，是 2012年发布的最终版本。此后没再发布新版本，官方给出的理由是维护者缺乏任何沟通 (?</p>
 ]]></content>
       <tags>
-        <tag>--uLibc --mips</tag>
+        <tag>--uClibc --mips</tag>
       </tags>
   </entry>
   <entry>
