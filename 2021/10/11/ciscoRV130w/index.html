@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":230,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="更新中… 11.1：还在调😅">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cve-2021-34730">
+<meta property="og:url" content="http://example.com/2021/10/11/ciscoRV130w/index.html">
+<meta property="og:site_name" content="71&#39;s blog">
+<meta property="og:description" content="更新中… 11.1：还在调😅">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/10/21/EZMdhXHG1AY3F9I.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/10/21/RJ6YcS29befODLw.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/10/21/mtSqwnv1XNQzVrA.png">
+<meta property="og:image" content="https://i.loli.net/2021/10/22/VSYr3y5qhOeRN16.png">
+<meta property="og:image" content="https://i.loli.net/2021/10/29/unrXtxIRD83djv2.png">
+<meta property="og:image" content="https://i.loli.net/2021/10/29/2iKeYQBAcLau3XZ.png">
+<meta property="og:image" content="https://i.loli.net/2021/10/29/yOYzPERo28aQHCs.png">
+<meta property="og:image" content="https://i.loli.net/2021/10/28/cjEa7VLIThBpqsA.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/01/8zOBrPe94C2wn6b.png">
+<meta property="og:image" content="c:/Users/7ee1n/AppData/Roaming/Typora/typora-user-images/image-20211103213837207.png">
+<meta property="article:published_time" content="2021-10-11T03:04:39.000Z">
+<meta property="article:modified_time" content="2021-11-04T15:38:19.561Z">
+<meta property="article:author" content="7ee1n">
+<meta property="article:tag" content="arm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/10/21/EZMdhXHG1AY3F9I.jpg">
+
+<link rel="canonical" href="http://example.com/2021/10/11/ciscoRV130w/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>cve-2021-34730 | 71's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">71's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/11/ciscoRV130w/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="7ee1n">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="71's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          cve-2021-34730
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-11 11:04:39" itemprop="dateCreated datePublished" datetime="2021-10-11T11:04:39+08:00">2021-10-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-04 23:38:19" itemprop="dateModified" datetime="2021-11-04T23:38:19+08:00">2021-11-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iot/" itemprop="url" rel="index"><span itemprop="name">iot</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/10/11/ciscoRV130w/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/10/11/ciscoRV130w/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>更新中… 11.1：还在调😅</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="Pre"><a href="#Pre" class="headerlink" title="Pre"></a>Pre</h1><p>漏洞信息：<a target="_blank" rel="noopener" href="https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-cisco-sb-rv-overflow-htpymMB5">Cisco Small Business RV110W、RV130、RV130W 和 RV215W 路由器远程命令执行和拒绝服务漏洞</a>。</p>
+<h2 id="UART调试"><a href="#UART调试" class="headerlink" title="UART调试"></a>UART调试</h2><p>上一篇 <a target="_blank" rel="noopener" href="https://7ee1n.github.io/2021/09/25/ciscoRV110w-CVE-2020-3331/#more">CVE-2020-3331复现</a> 用的设备是 RV110W，在升级固件的过程中发现有的固件没有开启 telnet 服务，有的会默认开启 telnet 服务。应该是厂商在打补丁更新的时候加入了 telnet 服务，又刚好把哈希明文写si在固件代码中，所以才能在较新的版本中通过 telnet 后门远程连接。</p>
+<p>但并非每台设备、每个版本都这样。搜索 <a target="_blank" rel="noopener" href="https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=RV130W">RV130W</a> ，几乎所有的 CVE 里都没提到过 telnet 后门。我往里面刷了几个不同版本的固件，发现都没有开启。也许是出于安全问题的考虑，没有加上 telnet 后门。</p>
+<p>除了远程连接调试的方式外，还可以通过 UART 口进行调试。参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/44582230">串口UART串行总线协议</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/73875084">路由器基本调试一 UART定位</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/zeroboundary/article/details/8966586">UART中的硬件流控RTS与CTS</a></li>
+</ul>
+<p>RV130W 的 UART 口不太好找，于是我拿 110W 的对比了下。上一篇博客提到过，130W 比 110W 的网更快、更稳定、更安全。下图中左边是 RV130W，右边是 RV110W。从两者用的芯片型号、大小以及整个电路板的设计可以直观地感受出区别。整体布局还是很相似的（RV130W的芯片分布是我根据印刷的型号判断的，正确与否还得拆除散热片进行验证，这点留到复现完再做），最终找到的 UART 口都是在闪存旁边。</p>
+<p><img src="https://i.loli.net/2021/10/21/EZMdhXHG1AY3F9I.jpg"></p>
+<p>虽然 130W 的 UART 口附近只标注了电阻名，但我们可以借助 标注详细的 110W 的 UART口来分析。以下是 RV110W 上的 UART 口，可以判断出它用的是 RS232 标准。焊上排针后，用万用表分别测 110W 和 130W 的 UART 口，发现它们的顺序是一样的，只是整体排列方向不同。调试的时候用 TX、RX、GND 就够了。</p>
+<p><img src="https://i.loli.net/2021/10/21/RJ6YcS29befODLw.jpg"></p>
+<p>连接到 PC 上需要用 FT232。买的时候商家一般会发使用手册，里面有驱动和串口调试工具。我用的是 <a target="_blank" rel="noopener" href="https://www.hilgraeve.com/hyperterminal-trial/">HyperTerminal</a> ，putty也行，支持串口通讯的都行。受<a target="_blank" rel="noopener" href="https://petri.com/csc_how_to_use_hyperterminal_with_cisco_routers_and_switches#:~:text=HyperTerminal%20can%20also%20be%20used%20to%20telnet%20to,so%20that%20you%20can%20more%20quickly%20configure%20devices.">这篇文章</a>影响，一开始选择了默认的波特率9600，一直接收到乱码。后来想起在通信原理课上用过这个软件，其实收发数据的过程也是完整的信号调制-传输-解调的过程，波特率不一致就会导致解调结果错误。因此逐个波特率尝试了一遍，最终试出了正确的数值 。</p>
+<p><img src="https://i.loli.net/2021/10/21/mtSqwnv1XNQzVrA.png"></p>
+<p>开机的时候会打印出一些配置信息。因此我先关闭电源，串口通信连接成功后（此时会接收到一堆 \x00），再接通电源，这样就能接收到完整的开机信息了。</p>
+<p>38400</p>
+<h2 id="UPnP协议"><a href="#UPnP协议" class="headerlink" title="UPnP协议"></a>UPnP协议</h2><p>参考：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="http://www.h3c.com/cn/d_201206/922127_30005_0.htm">UPnP基本原理以及在NAT中的应用-新华三集团-H3C</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/40407669">P2P 网络核心技术：UPnP 和 SSDP 协议</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.360doc.com/content/14/1009/17/13468863_415575489.shtml">国产路由器的死穴：UPNP功能介绍和危害</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.attacker.cc/index.php/archives/113/">UPnP 安全（二）：UPnP 协议具体流程</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/debin/archive/2009/12/01/1614543.html">SSDP，简单服务发现技术</a></p>
+</li>
+</ul>
+<p>SSDP协议是UPnP协议的核心，主要是完成了服务发现的工作。消息类型可以分为 m-search 和 notify。SSDP 协议是 UDP 传输实现的，设备端总是在 <code>239.255.255.250:1900</code> 这个组播地址上监听。因为是建立在无连接基础上的传输，消息总是会不断地重复发送，我本地抓包的时候发现确实如此。</p>
+<p>假设我们现在有一台 PC（控制点）和路由器（UPnP设备）。当 UpnP 设备进入网络时，会广播发送 NOTIFY 信息给网络上的所有设备。当PC接入网络的时候，首先通过路由器的 DHCP 服务获得局域网内的一个 ip，接着发送 ssdp 的 m-search 消息，寻找 UPnP 设备。ST 字段指定了搜索设备类型，抓包过程中发现一般都有网关设备、根设备这几种类型。</p>
+<p><img src="https://i.loli.net/2021/10/22/VSYr3y5qhOeRN16.png"></p>
+<p>为了理清楚这些包之间的关系，我们可以用 <a target="_blank" rel="noopener" href="https://upnpy.readthedocs.io/en/latest/">upnpy</a> 运行对应的服务看看。以下是在 ubuntu 上运行的discover服务，然后在 VMnet8 网卡截取流量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">import upnpy</span><br><span class="line">upnp=upnpy.UPnP()</span><br><span class="line">devices=upnp.discover()</span><br><span class="line">print(devices)</span><br></pre></td></tr></table></figure>
+
+<p>一开始是从 ens33 网卡的 ip 发出 discover 包的，寻找的是根设备。但我们的虚拟机用的是 NAT 模式，这个包最终会通过 VMnet8 虚拟网卡转发出来。可以看到后续发的包全是代理转发的包，加上了 UASER-AGENT 字段，ST也变了。</p>
+<p><img src="https://i.loli.net/2021/10/29/unrXtxIRD83djv2.png"></p>
+<p>随后在WLAN网卡抓取到由它进一步转发的包，ST类型变化如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ST: urn:schemas-upnp-org:device:InternetGatewayDevice:1\r\n</span><br><span class="line">ST: urn:dial-multiscreen-org:service:dial:1\r\n</span><br></pre></td></tr></table></figure>
+
+<p>查看前面定义的 devices 变量，发现可用设备为空。因为我们的测试环境是在校园网下的，没有开启upnp服务，也收不到答应包。但是我连接了路由器的 LAN 接口后，发现 devices 还是空。在以太网网卡截取不到ssdp流量，倒是从WLAN网卡转发出去了，应该是没跟 192.168.1.1 建立起 socket 连接的原因。</p>
+<p>因此我们需要手动发送 discover 的 socket 包到网关上测试一下。根据前面的测试来看，本机发送的ST字段应该是根设备。当这个包被代理转发后，ST字段才会改变。</p>
+<p>这里的脚本我用的是<a target="_blank" rel="noopener" href="https://pythonawesome.com/cisco-rv110w-upnp-stack-overflow/">前面参考链接</a>中的脚本。把每个变量输出一下大概知道得到的是什么内容了。简而言之就是：</p>
+<ul>
+<li>device：<code>Device &lt;(device name)&gt;</code></li>
+<li>device.get_services()：service数组，有服务名和服务id两个元素，且名字相似。</li>
+<li>service.get_actions()：action数组，有每个服务对应的功能和需要的参数。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> upnpy</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> upnpy.ssdp.SSDPDevice <span class="keyword">import</span> SSDPDevice</span><br><span class="line">msg = \</span><br><span class="line">    <span class="string">b&#x27;M-SEARCH * HTTP/1.1\r\n&#x27;</span> \</span><br><span class="line">    <span class="string">b&#x27;HOST:239.255.255.250:1900\r\n&#x27;</span> \</span><br><span class="line">    <span class="string">b&#x27;ST:upnp:rootdevice\r\n&#x27;</span> \</span><br><span class="line">    <span class="string">b&#x27;MX:2\r\n&#x27;</span> \</span><br><span class="line">    <span class="string">b&#x27;MAN:&quot;ssdp:discover&quot;\r\n&#x27;</span> \</span><br><span class="line">    <span class="string">b&#x27;\r\n&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Set up UDP socket</span></span><br><span class="line">s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)</span><br><span class="line">s.bind((<span class="string">b&quot;192.168.1.100&quot;</span>,<span class="number">9999</span>))</span><br><span class="line">s.settimeout(<span class="number">2</span>)</span><br><span class="line">s.sendto(msg, (<span class="string">b&#x27;239.255.255.250&#x27;</span>, <span class="number">1900</span>))</span><br><span class="line">addr = (<span class="string">&#x27;192.168.1.1&#x27;</span>, <span class="number">1900</span>)</span><br><span class="line">data = <span class="string">b&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;=== receive data ===&quot;</span>)</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        data, addr = s.recvfrom(<span class="number">65507</span>)</span><br><span class="line">        <span class="built_in">print</span>(addr,data)</span><br><span class="line"><span class="keyword">except</span> socket.timeout:</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">device = SSDPDevice(addr, data.decode())<span class="comment">#Device &lt;RV130W&gt;</span></span><br><span class="line">services = device.get_services()</span><br><span class="line">services_id = [services[i].<span class="built_in">id</span>.split(<span class="string">&quot;:&quot;</span>)[-<span class="number">1</span>] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(services))]</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">id</span> <span class="keyword">in</span> services_id:</span><br><span class="line">    service = device[<span class="built_in">id</span>]</span><br><span class="line">    actions = service.get_actions()</span><br><span class="line">    <span class="keyword">for</span> action <span class="keyword">in</span> actions:</span><br><span class="line">        <span class="keyword">for</span> argument <span class="keyword">in</span> action.arguments:</span><br><span class="line">            <span class="built_in">print</span>(<span class="built_in">id</span>,action.name,argument.name)</span><br></pre></td></tr></table></figure>
+
+<p>从运行结果可以看到UPnP设备能提供的服务，基本都是与端口映射、建立连接相关的。随后能抓到路由器发来的回复包，说明这台路由器就是根设备。</p>
+<p><img src="https://i.loli.net/2021/10/29/2iKeYQBAcLau3XZ.png"></p>
+<h2 id="端口扫描"><a href="#端口扫描" class="headerlink" title="端口扫描"></a>端口扫描</h2><p>UPnP 漏洞影响严重的其中一个原因是很多路由器都默认开次该服务，思科官网针对停产设备提出的解决方案是用户禁用此服务。在 1.2.44 的版本下测试的时候，我发现 RV130W 是默认关闭此服务的。打开后，只是多了一个 444 端口，似乎并没有什么用。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nmap 192.168.1.1</span></span><br><span class="line">Starting Nmap 7.92 ( https://nmap.org ) at 2021-10-29 08:15 PDT</span><br><span class="line">Nmap scan report for router751C7F (192.168.1.1)</span><br><span class="line">Host is up (0.0088s latency).</span><br><span class="line">Not shown: 995 closed tcp ports (conn-refused)</span><br><span class="line">PORT    STATE SERVICE</span><br><span class="line">53/tcp  open  domain</span><br><span class="line">80/tcp  open  http</span><br><span class="line">81/tcp  open  hosts2-ns</span><br><span class="line">443/tcp open  https</span><br><span class="line">444/tcp open  snpp</span><br></pre></td></tr></table></figure>
+
+<p>尝试扫了所有端口，也没有结果。但是通过前面的流量分析可以肯定 UPnP 服务是开启的，找不到端口也没有关系。</p>
+<h2 id="漏洞程序"><a href="#漏洞程序" class="headerlink" title="漏洞程序"></a>漏洞程序</h2><blockquote>
+<p>同一类路由器的设计思路可能是相似的，因此这里借助了《<a target="_blank" rel="noopener" href="https://pythonawesome.com/cisco-rv110w-upnp-stack-overflow/">Cisco RV110w UPnP stack overflow</a>》进行分析。</p>
+</blockquote>
+<p>只开启了NX保护。从运行结果来看，程序用的是 uClibc 库。这个库可以通过buildroot交叉编译出来。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> file upnp</span></span><br><span class="line">upnp: ELF 32-bit LSB executable, ARM, EABI4 version 1 (SYSV), dynamically linked, interpreter /lib/ld-uClibc.so.0, stripped</span><br><span class="line"><span class="meta">$</span><span class="bash"> checksec upnp</span></span><br><span class="line">[*] Arch:     arm-32-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8000)</span><br><span class="line"><span class="meta">$</span><span class="bash"> qemu-arm -L /usr/arm-linux-gnueabihf ./upnp</span></span><br><span class="line">/lib/ld-uClibc.so.0: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>IDA 打开后发现大部分函数都去了符号表。但是 RV110W 的 upnp 文件没有去除，可以用 bindiff 对比着还原些函数名(右键<code>&gt;import symbols</code>)。</p>
+<p><img src="https://i.loli.net/2021/10/29/yOYzPERo28aQHCs.png"></p>
+<p>ida对下面这段地址的解析出现错误，无法进行反汇编。观察一下汇编指令，基本没什么问题，但是从PUSH指令开始解析失败。在这里右键 create function就可以了。</p>
+<p><img src="https://i.loli.net/2021/10/28/cjEa7VLIThBpqsA.png"></p>
+<p>这段程序还原符号表后，应该是 parse_uri 函数，结尾调用了ssdp_msearch_response，看来是msearch包响应的处理程序。下面这段代码使用了危险函数 strcpy：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">if</span> ( !<span class="built_in">strcmp</span>(device, <span class="string">&quot;upnp:rootdevice&quot;</span>) )</span><br><span class="line">  &#123;</span><br><span class="line">    v7 = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">goto</span> LABEL_14;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> ( !<span class="built_in">memcmp</span>(device, <span class="string">&quot;uuid:&quot;</span>, <span class="number">5u</span>) )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">strcpy</span>(uuid, device + <span class="number">5</span>);  <span class="comment">// strcpy栈溢出</span></span><br><span class="line">    v7 = <span class="number">3</span>;</span><br><span class="line">    <span class="keyword">goto</span> LABEL_14;</span><br><span class="line">  &#125;</span><br><span class="line">......</span><br><span class="line">    LABEL_14:</span><br><span class="line">  ssdp_msearch_response(socket, uuid, v7);</span><br></pre></td></tr></table></figure>
+
+<p>从 <code>&quot;upnp:rootdevice&quot;</code> 可以判断注入点在 ST 字段。但是传入 uuid 的时候，返回相应包之前会做一个检查。这里的 v11 具体是什么呢，我是用gdb调出来的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">	<span class="keyword">if</span> ( v11[<span class="number">11</span>] == (<span class="keyword">const</span> <span class="keyword">char</span> *)<span class="number">1</span> )</span><br><span class="line">        <span class="keyword">goto</span> LABEL_7;</span><br><span class="line">	socket = <span class="built_in">strcmp</span>(uuid, (<span class="keyword">const</span> <span class="keyword">char</span> *)v11 + <span class="number">4</span>);</span><br><span class="line">	<span class="keyword">if</span> ( socket )</span><br><span class="line">        <span class="keyword">goto</span> LABEL_7;</span><br><span class="line">	<span class="keyword">return</span> ssdp_response(s, v11, <span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><p>参考：</p>
+<ul>
+<li> <a target="_blank" rel="noopener" href="https://ssd-disclosure.com/ssd-advisory-dd-wrt-upnp-buffer-overflow/">SSD Advisory – DD-WRT UPNP Buffer Overflow</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/217606">PSV-2020-0211-Netgear-R8300-UPnP栈溢出漏洞分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/49730">DD-WRT 45723 - UPNP Buffer Overflow (PoC)</a></li>
+</ul>
+<p>……</p>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>（跟上一篇的步骤差不多）</p>
+<p>先上传 gdbserver。</p>
+<p>发现 netstat 也没有 -p 参数，从 <a target="_blank" rel="noopener" href="https://busybox.net/downloads/binaries/1.21.1/">busybox官网</a> 下载对应的版本再上传。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> uname -a</span></span><br><span class="line">Linux RV130W 2.6.31.1-cavm1 #1 Fri Jun 8 15:31:53 CST 2018 armv6l unknown</span><br><span class="line"><span class="meta">#</span><span class="bash"> ./busybox-armv6l netstat -pantu</span></span><br></pre></td></tr></table></figure>
+
+<p>测出偏移(160)</p>
+<p><img src="https://i.loli.net/2021/11/01/8zOBrPe94C2wn6b.png"></p>
+<p>发短一些的数据时还是会崩，这次我们把断点下在strcpy函数 (0xb79c) 和 strcmp(0xb59c) .跟进分析找到了 strcmp 用的 id 号，为了通过检查把它写在payload头部，后面先用 ‘\x00’ 填充。</p>
+<p>0x000B79C: strcpy</p>
+<p>0x0000B764: call msearch</p>
+<p>0x0000B59C: strcmp</p>
+<p>0x0000B5B8: response</p>
+<p>0x0000B770: return 0</p>
+<p>发现这个设备跟 RV110W 一样，每个程序的 libc 基址都是固定的。所以我们同样地用 libc 的 gadget ，而不用程序本身的（地址含’\x00’，会被截断）。</p>
+<p><img src="C:\Users\7ee1n\AppData\Roaming\Typora\typora-user-images\image-20211103213837207.png" alt="image-20211103213837207"></p>
+<p>en 调着调着win10 不给连了，“收集到未知错误信息”emm。调之前应该想好怎么调，减少错误，不然一直 reboot（</p>
+<h2 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h2><h1 id="Unsolved"><a href="#Unsolved" class="headerlink" title="Unsolved"></a>Unsolved</h1><blockquote>
+<p>官网发布的漏洞解决方案提到，鼓励用户迁移到 RV132W、RV160 或 RV160W 路由器，那么他们在代码上有什么变化呢？是直接把 UPnP 功能删除了还是用其他函数替代危险函数呢？</p>
+</blockquote>
+<p>7.6对bindiff的支持挺好。</p>
+<blockquote>
+<p>130W有三块芯片用屏蔽或散热片封起来，尚未确定具体是什么芯片。</p>
+</blockquote>
+<p>怕拆坏，复现完再拆。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/arm/" rel="tag"># arm</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/25/ciscoRV110w-CVE-2020-3331/" rel="prev" title="CVE复现 | CiscoRV110W CVE2020-3330/3331">
+      <i class="fa fa-chevron-left"></i> CVE复现 | CiscoRV110W CVE2020-3330/3331
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/01/hack-lu-2021/" rel="next" title="Hack.lu ctf 2021">
+      Hack.lu ctf 2021 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Pre"><span class="nav-number">1.</span> <span class="nav-text">Pre</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UART%E8%B0%83%E8%AF%95"><span class="nav-number">1.1.</span> <span class="nav-text">UART调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UPnP%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.2.</span> <span class="nav-text">UPnP协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="nav-number">1.3.</span> <span class="nav-text">端口扫描</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.4.</span> <span class="nav-text">漏洞程序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%AF%95"><span class="nav-number">2.1.</span> <span class="nav-text">调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8"><span class="nav-number">2.2.</span> <span class="nav-text">利用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unsolved"><span class="nav-number">3.</span> <span class="nav-text">Unsolved</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">7ee1n</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://custuvo.github.io/" title="https:&#x2F;&#x2F;custuvo.github.io&#x2F;" rel="noopener" target="_blank">❤Cu3tuv0❤</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://brooke-hub.github.io/" title="https:&#x2F;&#x2F;brooke-hub.github.io&#x2F;" rel="noopener" target="_blank">Wendy</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://r1nd0.github.io/" title="https:&#x2F;&#x2F;r1nd0.github.io&#x2F;" rel="noopener" target="_blank">R1nd0神</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">7ee1n</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'gf3X3bhGvA1TTaRXpIJrXU8Q-gzGzoHsz# Your leancloud application appid',
+      appKey     : 'PhQvOaVhLbUmODpCMAScvMqy# Your leancloud application appkey',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":180,"height":360},"dialog":{"enable":false},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

