@@ -185,6 +185,108 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/06/PAT%E7%BB%83%E4%B9%A0%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="7ee1n">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="71's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/06/PAT%E7%BB%83%E4%B9%A0%E9%A2%98/" class="post-title-link" itemprop="url">PAT练习题</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-03-06 14:22:43 / 修改时间：15:11:29" itemprop="dateCreated datePublished" datetime="2022-03-06T14:22:43+08:00">2022-03-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/note/" itemprop="url" rel="index"><span itemprop="name">note</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/03/06/PAT%E7%BB%83%E4%B9%A0%E9%A2%98/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/03/06/PAT%E7%BB%83%E4%B9%A0%E9%A2%98/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>3.5 PAT甲级低分飘过😶‍🌫️ 笔记做都做了，发一下吧。</p>
+</blockquote>
+<p>考试题型跟网上说的无太大差距，都在考纲范围内。</p>
+<p>这次考的是——字符串+排序+二叉查找树+图&amp;&amp;最短路径。麻了，最后一题没时间做完，虽然没复习到那里，但是感觉也能做emm。</p>
+<p>复习的时候看的是算法笔记和配套的上机指南，没空做真题。</p>
+<p>春节后天天刷，把前面的字符串处理、排序、数学问题的各种题型刷完的话，大概花了两周，已经能做的很熟练了。在我考试的时候看来，这类题目属于“有手就行”，但是不把题目刷完吧，有些做题技巧还是没法积累到的（比如直接sort会超时的情况）。</p>
+<p>之前很少用到STL库的vector、set、map，这里有的题目用这些数据结构会更好解。光看那几道例题（一天就能做完）不行，得通过后面树、图的题练熟。</p>
+<p>树的前中后和层次序列，这四者的互相转换很重要，对应的也有好几道题。BST和AVL也很重要。由树衍生出来的并查集和堆，比较好掌握，但是好像还是树考的比较多。一棵树，来来去去无非就是判断类别和查找，所以遍历的算法（DFS和BFS）相当相当重要。只要搞懂了树的结构特点，很多题目都可以用一维/二维数组解决，无需真的struct node* 建树。</p>
+<p>DFS和BFS的题目在树的前面，还有栈、队列那些，连在一起练习会好理解些。这些题我大概做了一周，题不多但是刚开始做会有点生疏，熟了之后后面的树、图会做得更快。</p>
+<p>树的题目，套路为主吧。我是考前一周才复习到这里的，早晚总共花2~3小时左右，题目也没完全做完（实在是不够时间了55），练熟了就行。</p>
+<p>图的话，压根没看完，凭着点理解和以前学过的记忆就上考场了🥲，但是我觉得树图和DFS、BFS是一体的，连着刷个一两周题目应该没问题。</p>
+<p>考试时间是三个小时。最耗时间的应该是读题，前两道题目虽然简单，但是读不好题，肯定有很多测试点不过，又得慢慢改。最后一题有hint，但我光是看懂hint都不知道花了多少时间…… 我这次大概是第一题四五十分钟，第二题二三十分钟，第三题四五十分钟，第四题四五十分钟这样。如果下次还考的话，争取多做一下树图的题和真题，把熟练度刷上去。虽然感觉这次最后一题能做，但真的太不熟了，估计再给一小时也做不完emm。</p>
+<p>笔记整理的是我刷过的题和书上的一些代码，复杂一点的题目或者当时没记牢的题目直接贴代码了。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/06/PAT%E7%BB%83%E4%B9%A0%E9%A2%98/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/26/rwctf2022/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1054,103 +1156,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/13/embedded-heap/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="7ee1n">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="71's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/13/embedded-heap/" class="post-title-link" itemprop="url">uClibc | embedded_heap-0ctf2019final</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-13 19:20:47" itemprop="dateCreated datePublished" datetime="2021-09-13T19:20:47+08:00">2021-09-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-01 16:28:13" itemprop="dateModified" datetime="2021-11-01T16:28:13+08:00">2021-11-01</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2021/09/13/embedded-heap/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/09/13/embedded-heap/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>有点老的题目——19年的 house of prime。算是 MIPS 入门题。环境为 uLibc，是用于嵌入式系统和移动设备的基于 Linux 内核的操作系统（摘自wiki）。说白了就是小型设备都用它，我理解为精简版的 glibc，有一点点变化，但相似度还是蛮高的en，但是 qemu user调着好像有点问题，先鸽一会会😭😰，后续补上</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/13/embedded-heap/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1220,7 +1225,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1233,7 +1238,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
